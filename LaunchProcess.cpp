@@ -7,8 +7,8 @@ LaunchProcess::LaunchProcess(QObject *parent) : QObject(parent)
 
 }
 
-void LaunchProcess::run() override {
+void LaunchProcess::run() {
 
-           emit log(QString("Finish"));
+   emit log(QString("Finish"));
 
-       }
+}
