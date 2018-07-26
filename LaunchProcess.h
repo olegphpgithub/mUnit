@@ -1,9 +1,9 @@
 #ifndef LAUNCHPROCESS_H
 #define LAUNCHPROCESS_H
 
-#include <QObject>
+#include <QThread>
 
-class LaunchProcess : public QObject
+class LaunchProcess : public QThread
 {
     Q_OBJECT
     void run();

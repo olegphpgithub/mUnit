@@ -17,6 +17,7 @@ public:
 
 public slots:
     void launch();
+    void log(QString);
 
 private:
     Ui::MainWindow *ui;

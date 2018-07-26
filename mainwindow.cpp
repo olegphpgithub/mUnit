@@ -18,5 +18,16 @@ MainWindow::~MainWindow()
 
 void MainWindow::launch()
 {
-    ui->resultTextEdit->append("Launch");
+    LaunchProcess *lp = new LaunchProcess();
+    QObject::connect(lp, SIGNAL(log(QString)), this, SLOT(log(QString)));
+    lp->start();
+
+    ui->resultTextEdit->append("Launch 1");
+
+    //lp->deleteLater();
+}
+
+void MainWindow::log(QString logString)
+{
+    ui->resultTextEdit->append(logString);
 }
