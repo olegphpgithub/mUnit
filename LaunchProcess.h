@@ -9,6 +9,7 @@ class LaunchProcess : public QThread
     void run();
 public:
     explicit LaunchProcess(QObject *parent = 0);
+    ~LaunchProcess();
 
 signals:
     void log(QString);

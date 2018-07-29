@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include <QtCore>
+#include <QtDebug>
 
 #include <Windows.h>
 #include <WtsApi32.h>
@@ -28,28 +29,59 @@ void MainWindow::launch()
     processesAtStart.clear();
     processesAtStart = getProcessesList();
 
-    LaunchProcess *lp = new LaunchProcess();
-    QObject::connect(lp, SIGNAL(log(QString)), this, SLOT(log(QString)));
-    lp->start();
+    qDebug() << QString("launch");
 
     ui->resultTextEdit->append("Launch 1");
     ui->resultTextEdit->append(QString::number(processesAtStart.count()));
 
+    filesList.clear();
+    filesList = getFilesListToLaunch();
+
+    currentFile = 0;
+
+    /** +++ */
+    STARTUPINFO info = { sizeof(info) };
+    PROCESS_INFORMATION processInfo;
+    QString proc;
+    proc = filesList.at(currentFile);
+
+    wchar_t lpcwCommand[1024];
+    ZeroMemory(lpcwCommand, sizeof(lpcwCommand));
+    proc.toWCharArray(lpcwCommand);
+    qDebug() << lpcwCommand;
+    qDebug() << sizeof(lpcwCommand);
+    BOOL ok = CreateProcess(lpcwCommand, NULL, NULL, NULL, TRUE, 0, NULL, NULL, &info, &processInfo);
+    if (ok) {
+        qDebug() << "4444444444444";
+    }
+
+    LaunchProcess *lp = new LaunchProcess(this);
+    QObject::connect(lp, SIGNAL(log(QString)), this, SLOT(log(QString)));
+    lp->start();
+
+    /** --- */
+
+    //lp->deleteLater();
+}
+
+QStringList MainWindow::getFilesListToLaunch()
+{
+    QStringList filesList;
     QDir dir("c:\\tmp");
     dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
 
     QFileInfoList list = dir.entryInfoList();
     for (int i = 0; i < list.size(); ++i) {
         QFileInfo fileInfo = list.at(i);
-        ui->resultTextEdit->append(QString("%1")
-                                   .arg(fileInfo.absoluteFilePath()));
+        filesList.append(fileInfo.absoluteFilePath());
     }
 
-    //lp->deleteLater();
+    return filesList;
 }
 
 void MainWindow::log(QString logString)
 {
+
     QMap<int, QString> processesAtWork = getProcessesList();
 
     QMap<int, QString>::const_iterator i = processesAtWork.constBegin();
@@ -74,6 +106,17 @@ void MainWindow::log(QString logString)
 
         i++;
     }
+
+    currentFile++;
+    process->deleteLater();
+    process = new QProcess(this);
+    QString file = filesList[currentFile];
+    process->start(file);
+
+    LaunchProcess *lp = new LaunchProcess(this);
+    QObject::connect(lp, SIGNAL(log(QString)), this, SLOT(log(QString)));
+    lp->start();
+
 
     ui->resultTextEdit->append(logString);
 }
