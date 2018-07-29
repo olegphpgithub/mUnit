@@ -5,12 +5,12 @@
 
 LaunchProcess::LaunchProcess(QObject *parent) : QThread(parent)
 {
-    qDebug() << "LaunchProcess";
+    qDebug() << "LaunchProcess constructor";
 }
 
 LaunchProcess::~LaunchProcess()
 {
-    qDebug() << "destroy LaunchProcess";
+    qDebug() << "LaunchProcess destructor";
 }
 
 void LaunchProcess::run() {

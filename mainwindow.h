@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QMap>
 
-class QProcess;
+class LaunchProcess;
 
 namespace Ui {
 class MainWindow;
@@ -27,10 +27,11 @@ private:
     QMap<int, QString> processesAtStart;
     QMap<int, QString> getProcessesList();
     bool TerminateProcessById(int dwProcessId, int uExitCode);
+    void StartNextPE();
     QStringList filesList;
     QStringList getFilesListToLaunch();
     int currentFile;
-    QProcess *process;
+    LaunchProcess *mtimer;
 };
 
 #endif // MAINWINDOW_H

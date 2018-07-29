@@ -29,39 +29,70 @@ void MainWindow::launch()
     processesAtStart.clear();
     processesAtStart = getProcessesList();
 
-    qDebug() << QString("launch");
+
 
     ui->resultTextEdit->append("Launch 1");
     ui->resultTextEdit->append(QString::number(processesAtStart.count()));
 
     filesList.clear();
     filesList = getFilesListToLaunch();
-
-    currentFile = 0;
-
-    /** +++ */
-    STARTUPINFO info = { sizeof(info) };
-    PROCESS_INFORMATION processInfo;
-    QString proc;
-    proc = filesList.at(currentFile);
-
-    wchar_t lpcwCommand[1024];
-    ZeroMemory(lpcwCommand, sizeof(lpcwCommand));
-    proc.toWCharArray(lpcwCommand);
-    qDebug() << lpcwCommand;
-    qDebug() << sizeof(lpcwCommand);
-    BOOL ok = CreateProcess(lpcwCommand, NULL, NULL, NULL, TRUE, 0, NULL, NULL, &info, &processInfo);
-    if (ok) {
-        qDebug() << "4444444444444";
+    if(filesList.count() < 1) {
+        ui->resultTextEdit->append("There are not files to launch.");
+        return;
     }
+    qDebug() << QString("launch 19");
 
-    LaunchProcess *lp = new LaunchProcess(this);
-    QObject::connect(lp, SIGNAL(log(QString)), this, SLOT(log(QString)));
-    lp->start();
+    currentFile = -1;
+    mtimer = NULL;
+
+    StartNextPE();
 
     /** --- */
 
-    //lp->deleteLater();
+}
+
+void MainWindow::StartNextPE()
+{
+    qDebug() << "+++";
+
+    if (++currentFile >= filesList.count()) {
+        return;
+    }
+    qDebug() << "continue";
+
+    QString proc;
+    proc = filesList.at(currentFile);
+
+    qDebug() << proc;
+    if(proc == NULL) {
+        return;
+    }
+
+    wchar_t lpcwCommand[_MAX_PATH];
+
+    ZeroMemory(lpcwCommand, sizeof(lpcwCommand));
+    proc.toWCharArray(lpcwCommand);
+
+    STARTUPINFO info = { sizeof(info) };
+    PROCESS_INFORMATION processInfo;
+    BOOL ok = CreateProcess(lpcwCommand, NULL, NULL, NULL, TRUE, 0, NULL, NULL, &info, &processInfo);
+
+    if (ok) {
+        QString report(tr("%1 - Started successfully."));
+        report = report.arg(proc);
+        ui->resultTextEdit->append(report);
+    }
+
+    if(mtimer != NULL) {
+        QObject::disconnect(mtimer, SIGNAL(log(QString)), this, SLOT(log(QString)));
+        mtimer->deleteLater();
+    }
+
+    LaunchProcess *mtimer = new LaunchProcess(this);
+    QObject::connect(mtimer, SIGNAL(log(QString)), this, SLOT(log(QString)));
+    mtimer->start();
+
+
 }
 
 QStringList MainWindow::getFilesListToLaunch()
@@ -107,18 +138,12 @@ void MainWindow::log(QString logString)
         i++;
     }
 
-    currentFile++;
-    process->deleteLater();
-    process = new QProcess(this);
-    QString file = filesList[currentFile];
-    process->start(file);
-
-    LaunchProcess *lp = new LaunchProcess(this);
-    QObject::connect(lp, SIGNAL(log(QString)), this, SLOT(log(QString)));
-    lp->start();
-
+    //process->deleteLater();
 
     ui->resultTextEdit->append(logString);
+
+    StartNextPE();
+
 }
 
 
