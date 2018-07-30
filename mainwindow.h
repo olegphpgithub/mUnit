@@ -32,6 +32,7 @@ private:
     QStringList getFilesListToLaunch();
     int currentFile;
     LaunchProcess *mtimer;
+
 };
 
 #endif // MAINWINDOW_H

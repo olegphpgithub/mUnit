@@ -27,7 +27,7 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
-         <widget class="QLineEdit" name="lineEdit"/>
+         <widget class="QLineEdit" name="pathToExeFilesLineEdit"/>
         </item>
         <item>
          <widget class="QToolButton" name="toolButton">
@@ -48,7 +48,7 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
-         <widget class="QLineEdit" name="lineEdit_2"/>
+         <widget class="QLineEdit" name="pathToScreenShotsLineEdit"/>
         </item>
         <item>
          <widget class="QToolButton" name="toolButton_2">
@@ -69,7 +69,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QSpinBox" name="spinBox">
+         <widget class="QSpinBox" name="timeOutSpinBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
             <horstretch>0</horstretch>

@@ -3,9 +3,11 @@
 
 #include <QtCore>
 #include <QtDebug>
+#include <QtWidgets>
 
 #include <Windows.h>
 #include <WtsApi32.h>
+
 
 #pragma comment(lib, "Wtsapi32.lib")
 
@@ -17,22 +19,47 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     QObject::connect(ui->LaunchPushButton, SIGNAL(pressed()), this, SLOT(launch()));
+
+    QSettings settings;
+
+    QString pathToExeFiles = settings.value("pathToExeFiles").value<QString>();
+    ui->pathToExeFilesLineEdit->setText(pathToExeFiles);
+
+    QString pathToScreenShots = settings.value("pathToScreenShots").value<QString>();
+    ui->pathToScreenShotsLineEdit->setText(pathToScreenShots);
+
+    int timeOut = (settings.contains("timeOut")) ? settings.value("timeOut").value<int>() : 30;
+    ui->timeOutSpinBox->setValue(timeOut);
 }
 
 MainWindow::~MainWindow()
 {
+    QSettings settings;
+    settings.setValue("pathToExeFiles", ui->pathToExeFilesLineEdit->text());
+    settings.setValue("pathToScreenShots", ui->pathToScreenShotsLineEdit->text());
+    settings.setValue("timeOut", ui->timeOutSpinBox->value());
+    settings.sync();
+
     delete ui;
 }
 
 void MainWindow::launch()
 {
+
+    qDebug() << QString("launch 21");
+
+    if(ui->pathToExeFilesLineEdit->text().isNull() || ui->pathToExeFilesLineEdit->text().isEmpty()) {
+        QMessageBox::critical(this, tr(""), tr("Choose the directory."), QMessageBox::Cancel);
+        return;
+    }
+    QDir dir(ui->pathToExeFilesLineEdit->text());
+    if(!dir.exists()) {
+        QMessageBox::critical(this, tr(""), tr("Directory doesn't exists."), QMessageBox::Cancel);
+        return;
+    }
+
     processesAtStart.clear();
     processesAtStart = getProcessesList();
-
-
-
-    ui->resultTextEdit->append("Launch 1");
-    ui->resultTextEdit->append(QString::number(processesAtStart.count()));
 
     filesList.clear();
     filesList = getFilesListToLaunch();
@@ -40,33 +67,47 @@ void MainWindow::launch()
         ui->resultTextEdit->append("There are not files to launch.");
         return;
     }
-    qDebug() << QString("launch 19");
 
     currentFile = -1;
     mtimer = NULL;
 
     StartNextPE();
 
-    /** --- */
-
 }
 
 void MainWindow::StartNextPE()
 {
-    qDebug() << "+++";
+
+    if(currentFile > -1) {
+
+        QFileInfo fileInfo(filesList.at(currentFile));
+        fileInfo.baseName();
+
+        QPixmap originalPixmap;
+        QScreen *screen = QGuiApplication::primaryScreen();
+
+        originalPixmap = screen->grabWindow(0);
+
+        //"C:\\Users\\root\\Desktop\\%1.png";
+
+        QString ScreenShotPathName = ui->pathToScreenShotsLineEdit->text();
+        ScreenShotPathName.append("\\");
+        ScreenShotPathName.append(fileInfo.baseName());
+        ScreenShotPathName.append(".png");
+        qDebug() << ScreenShotPathName;
+        bool ok = originalPixmap.save(ScreenShotPathName, "png");
+        if(!ok) {
+            qDebug() << "Cannot save";
+
+        }
+    }
 
     if (++currentFile >= filesList.count()) {
         return;
     }
-    qDebug() << "continue";
 
     QString proc;
     proc = filesList.at(currentFile);
-
-    qDebug() << proc;
-    if(proc == NULL) {
-        return;
-    }
 
     wchar_t lpcwCommand[_MAX_PATH];
 
@@ -98,7 +139,7 @@ void MainWindow::StartNextPE()
 QStringList MainWindow::getFilesListToLaunch()
 {
     QStringList filesList;
-    QDir dir("c:\\tmp");
+    QDir dir(ui->pathToExeFilesLineEdit->text());
     dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
 
     QFileInfoList list = dir.entryInfoList();

@@ -20,6 +20,11 @@ BOOL TerminateMyProcess(DWORD dwProcessId, UINT uExitCode)
 
 int main(int argc, char *argv[])
 {
+
+    QCoreApplication::setOrganizationName("NetNucleusRus");
+    QCoreApplication::setOrganizationDomain("nn-rus.com");
+    QCoreApplication::setApplicationName("mUnit");
+
     QApplication a(argc, argv);
     MainWindow w;
     w.show();
