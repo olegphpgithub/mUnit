@@ -20,7 +20,7 @@
       <item>
        <widget class="QLabel" name="exeFilesLabel">
         <property name="text">
-         <string>Directory containing executable files</string>
+         <string>Directory containing executable files:</string>
         </property>
        </widget>
       </item>
@@ -30,7 +30,7 @@
          <widget class="QLineEdit" name="pathToExeFilesLineEdit"/>
         </item>
         <item>
-         <widget class="QToolButton" name="toolButton">
+         <widget class="QToolButton" name="pathToExeFilesToolButton">
           <property name="text">
            <string>...</string>
           </property>
@@ -41,7 +41,7 @@
       <item>
        <widget class="QLabel" name="ScreenShotDirLabel">
         <property name="text">
-         <string>Directory for screenshot images</string>
+         <string>Directory for screenshot images:</string>
         </property>
        </widget>
       </item>
@@ -51,7 +51,7 @@
          <widget class="QLineEdit" name="pathToScreenShotsLineEdit"/>
         </item>
         <item>
-         <widget class="QToolButton" name="toolButton_2">
+         <widget class="QToolButton" name="pathToScreenShotsToolButton">
           <property name="text">
            <string>...</string>
           </property>
@@ -64,7 +64,7 @@
         <item>
          <widget class="QLabel" name="intervalLabel">
           <property name="text">
-           <string>Interval</string>
+           <string>Interval:</string>
           </property>
          </widget>
         </item>

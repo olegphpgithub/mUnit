@@ -21,6 +21,8 @@ public:
 public slots:
     void launch();
     void log(QString);
+    void choosePathToExeFiles();
+    void choosePathToScreenShots();
 
 private:
     Ui::MainWindow *ui;

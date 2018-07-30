@@ -16,7 +16,7 @@ LaunchProcess::~LaunchProcess()
 void LaunchProcess::run() {
 
 
-    sleep(20);
+    sleep(30);
     emit log(QString("Finish"));
 
 }

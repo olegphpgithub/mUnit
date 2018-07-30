@@ -19,6 +19,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     QObject::connect(ui->LaunchPushButton, SIGNAL(pressed()), this, SLOT(launch()));
+    QObject::connect(ui->pathToExeFilesToolButton, SIGNAL(pressed()), this, SLOT(choosePathToExeFiles()));
+    QObject::connect(ui->pathToScreenShotsToolButton, SIGNAL(pressed()), this, SLOT(choosePathToScreenShots()));
 
     QSettings settings;
 
@@ -41,6 +43,38 @@ MainWindow::~MainWindow()
     settings.sync();
 
     delete ui;
+}
+
+void MainWindow::choosePathToExeFiles()
+{
+
+    QString fileName = QFileDialog::getExistingDirectory(
+        this,
+        tr("Choose directory"),
+        ui->pathToExeFilesLineEdit->text(),
+        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks
+        );
+    if(!(fileName.isNull() || fileName.isEmpty())) {
+        ui->pathToExeFilesLineEdit->setText(fileName);
+    }
+    ui->pathToExeFilesLineEdit->setFocus();
+
+}
+
+void MainWindow::choosePathToScreenShots()
+{
+
+    QString fileName = QFileDialog::getExistingDirectory(
+        this,
+        tr("Choose directory"),
+        ui->pathToScreenShotsLineEdit->text(),
+        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks
+        );
+    if(!(fileName.isNull() || fileName.isEmpty())) {
+        ui->pathToScreenShotsLineEdit->setText(fileName);
+    }
+    ui->pathToScreenShotsLineEdit->setFocus();
+
 }
 
 void MainWindow::launch()
@@ -78,30 +112,6 @@ void MainWindow::launch()
 void MainWindow::StartNextPE()
 {
 
-    if(currentFile > -1) {
-
-        QFileInfo fileInfo(filesList.at(currentFile));
-        fileInfo.baseName();
-
-        QPixmap originalPixmap;
-        QScreen *screen = QGuiApplication::primaryScreen();
-
-        originalPixmap = screen->grabWindow(0);
-
-        //"C:\\Users\\root\\Desktop\\%1.png";
-
-        QString ScreenShotPathName = ui->pathToScreenShotsLineEdit->text();
-        ScreenShotPathName.append("\\");
-        ScreenShotPathName.append(fileInfo.baseName());
-        ScreenShotPathName.append(".png");
-        qDebug() << ScreenShotPathName;
-        bool ok = originalPixmap.save(ScreenShotPathName, "png");
-        if(!ok) {
-            qDebug() << "Cannot save";
-
-        }
-    }
-
     if (++currentFile >= filesList.count()) {
         return;
     }
@@ -129,7 +139,7 @@ void MainWindow::StartNextPE()
         mtimer->deleteLater();
     }
 
-    LaunchProcess *mtimer = new LaunchProcess(this);
+    mtimer = new LaunchProcess();
     QObject::connect(mtimer, SIGNAL(log(QString)), this, SLOT(log(QString)));
     mtimer->start();
 
@@ -153,6 +163,29 @@ QStringList MainWindow::getFilesListToLaunch()
 
 void MainWindow::log(QString logString)
 {
+
+
+    // +++++ ScreenShot +++++
+    QFileInfo fileInfo(filesList.at(currentFile));
+    fileInfo.baseName();
+
+    QPixmap originalPixmap;
+    QScreen *screen = QGuiApplication::primaryScreen();
+
+    originalPixmap = screen->grabWindow(0);
+
+    QString ScreenShotPathName = ui->pathToScreenShotsLineEdit->text();
+    ScreenShotPathName.append("\\");
+    ScreenShotPathName.append(fileInfo.baseName());
+    ScreenShotPathName.append(".png");
+    qDebug() << ScreenShotPathName;
+    bool ok = originalPixmap.save(ScreenShotPathName, "png");
+    if(!ok) {
+        qDebug() << "Cannot save";
+
+    }
+    // ----- ScreenShot -----
+
 
     QMap<int, QString> processesAtWork = getProcessesList();
 
