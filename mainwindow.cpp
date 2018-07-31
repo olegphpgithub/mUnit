@@ -80,8 +80,6 @@ void MainWindow::choosePathToScreenShots()
 void MainWindow::launch()
 {
 
-    qDebug() << QString("launch 21");
-
     if(ui->pathToExeFilesLineEdit->text().isNull() || ui->pathToExeFilesLineEdit->text().isEmpty()) {
         QMessageBox::critical(this, tr(""), tr("Choose the directory."), QMessageBox::Cancel);
         return;
@@ -112,6 +110,11 @@ void MainWindow::launch()
 void MainWindow::StartNextPE()
 {
 
+    if(mtimer != NULL) {
+        QObject::disconnect(mtimer, SIGNAL(log(QString)), this, SLOT(log(QString)));
+        mtimer->deleteLater();
+    }
+
     if (++currentFile >= filesList.count()) {
         return;
     }
@@ -134,15 +137,10 @@ void MainWindow::StartNextPE()
         ui->resultTextEdit->append(report);
     }
 
-    if(mtimer != NULL) {
-        QObject::disconnect(mtimer, SIGNAL(log(QString)), this, SLOT(log(QString)));
-        mtimer->deleteLater();
-    }
-
     mtimer = new LaunchProcess();
+    mtimer->setTimeout(ui->timeOutSpinBox->value());
     QObject::connect(mtimer, SIGNAL(log(QString)), this, SLOT(log(QString)));
     mtimer->start();
-
 
 }
 
@@ -178,7 +176,7 @@ void MainWindow::log(QString logString)
     ScreenShotPathName.append("\\");
     ScreenShotPathName.append(fileInfo.baseName());
     ScreenShotPathName.append(".png");
-    qDebug() << ScreenShotPathName;
+
     bool ok = originalPixmap.save(ScreenShotPathName, "png");
     if(!ok) {
         qDebug() << "Cannot save";
@@ -211,8 +209,6 @@ void MainWindow::log(QString logString)
 
         i++;
     }
-
-    //process->deleteLater();
 
     ui->resultTextEdit->append(logString);
 

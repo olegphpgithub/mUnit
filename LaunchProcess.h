@@ -7,10 +7,11 @@ class LaunchProcess : public QThread
 {
     Q_OBJECT
     void run();
+    int iTimeOut;
 public:
     explicit LaunchProcess(QObject *parent = 0);
     ~LaunchProcess();
-
+    void setTimeout(int timeOut);
 signals:
     void log(QString);
 public slots:

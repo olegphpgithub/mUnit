@@ -8,6 +8,11 @@ LaunchProcess::LaunchProcess(QObject *parent) : QThread(parent)
     qDebug() << "LaunchProcess constructor";
 }
 
+void LaunchProcess::setTimeout(int timeOut)
+{
+    iTimeOut = timeOut;
+}
+
 LaunchProcess::~LaunchProcess()
 {
     qDebug() << "LaunchProcess destructor";
@@ -15,8 +20,7 @@ LaunchProcess::~LaunchProcess()
 
 void LaunchProcess::run() {
 
-
-    sleep(30);
-    emit log(QString("Finish"));
+    sleep(iTimeOut);
+    emit log(QString("Timeout exceeded"));
 
 }
