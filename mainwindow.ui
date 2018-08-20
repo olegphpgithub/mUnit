@@ -97,6 +97,16 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="NextLaunchPushButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Next launch</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QTextEdit" name="resultTextEdit"/>
       </item>
      </layout>

@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     QObject::connect(ui->LaunchPushButton, SIGNAL(pressed()), this, SLOT(launch()));
+    QObject::connect(ui->NextLaunchPushButton, SIGNAL(pressed()), this, SLOT(nextLaunch()));
     QObject::connect(ui->pathToExeFilesToolButton, SIGNAL(pressed()), this, SLOT(choosePathToExeFiles()));
     QObject::connect(ui->pathToScreenShotsToolButton, SIGNAL(pressed()), this, SLOT(choosePathToScreenShots()));
 
@@ -32,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     int timeOut = (settings.contains("timeOut")) ? settings.value("timeOut").value<int>() : 30;
     ui->timeOutSpinBox->setValue(timeOut);
+
 }
 
 MainWindow::~MainWindow()
@@ -102,9 +104,17 @@ void MainWindow::launch()
 
     currentFile = -1;
     mtimer = NULL;
+    ui->LaunchPushButton->setEnabled(false);
+    ui->NextLaunchPushButton->setEnabled(true);
 
     StartNextPE();
 
+}
+
+void MainWindow::nextLaunch()
+{
+    mtimer->terminate();
+    emit log(QString("Continue"));
 }
 
 void MainWindow::StartNextPE()
@@ -116,6 +126,8 @@ void MainWindow::StartNextPE()
     }
 
     if (++currentFile >= filesList.count()) {
+        ui->LaunchPushButton->setEnabled(true);
+        ui->NextLaunchPushButton->setEnabled(false);
         return;
     }
 

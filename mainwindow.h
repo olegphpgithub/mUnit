@@ -20,6 +20,7 @@ public:
 
 public slots:
     void launch();
+    void nextLaunch();
     void log(QString);
     void choosePathToExeFiles();
     void choosePathToScreenShots();
