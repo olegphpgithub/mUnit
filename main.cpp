@@ -45,19 +45,20 @@ bool IsRunAsAdmin()
         CheckTokenMembership(NULL, pAdministratorsGroup, &fIsRunAsAdmin);
     }
 
-    // Centralized cleanup for all allocated resources.
+    // Cleanup for all allocated resources.
     if (pAdministratorsGroup)
     {
         FreeSid(pAdministratorsGroup);
         pAdministratorsGroup = NULL;
     }
 
-    return fIsRunAsAdmin != FALSE;
+    return fIsRunAsAdmin;
+
 }
 
 bool elevateProcess()
 {
-    BOOL fIsRunAsAdmin;
+    bool fIsRunAsAdmin;
 
     fIsRunAsAdmin = IsRunAsAdmin();
 
@@ -90,8 +91,8 @@ bool elevateProcess()
     }
 
     return fIsRunAsAdmin;
-}
 
+}
 
 int main(int argc, char *argv[])
 {
