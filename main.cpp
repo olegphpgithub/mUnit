@@ -52,7 +52,7 @@ bool IsRunAsAdmin()
         pAdministratorsGroup = NULL;
     }
 
-    return fIsRunAsAdmin;
+    return (fIsRunAsAdmin != false);
 
 }
 
