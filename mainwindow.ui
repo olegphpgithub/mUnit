@@ -39,6 +39,20 @@
        </layout>
       </item>
       <item>
+       <widget class="QLabel" name="argumentsLabel">
+        <property name="text">
+         <string>Command Line Arguments</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QLineEdit" name="commandLineArgumentsLineEdit"/>
+        </item>
+       </layout>
+      </item>
+      <item>
        <widget class="QLabel" name="ScreenShotDirLabel">
         <property name="text">
          <string>Directory for screenshot images:</string>

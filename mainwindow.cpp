@@ -28,6 +28,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QString pathToExeFiles = settings.value("pathToExeFiles").value<QString>();
     ui->pathToExeFilesLineEdit->setText(pathToExeFiles);
 
+    QString commandLineArguments = settings.value("commandLineArguments").value<QString>();
+    ui->commandLineArgumentsLineEdit->setText(commandLineArguments);
+
     QString pathToScreenShots = settings.value("pathToScreenShots").value<QString>();
     ui->pathToScreenShotsLineEdit->setText(pathToScreenShots);
 
@@ -40,6 +43,7 @@ MainWindow::~MainWindow()
 {
     QSettings settings;
     settings.setValue("pathToExeFiles", ui->pathToExeFilesLineEdit->text());
+    settings.setValue("commandLineArguments", ui->commandLineArgumentsLineEdit->text());
     settings.setValue("pathToScreenShots", ui->pathToScreenShotsLineEdit->text());
     settings.setValue("timeOut", ui->timeOutSpinBox->value());
     settings.sync();
@@ -102,8 +106,14 @@ void MainWindow::launch()
         return;
     }
 
+    ZeroMemory(lpctsArg, sizeof(lpctsArg));
+    ui->commandLineArgumentsLineEdit->text().toWCharArray(lpctsArg);
+
     currentFile = -1;
     mtimer = NULL;
+    ui->pathToExeFilesLineEdit->setEnabled(false);
+    ui->commandLineArgumentsLineEdit->setEnabled(false);
+    ui->pathToScreenShotsLineEdit->setEnabled(false);
     ui->LaunchPushButton->setEnabled(false);
     ui->NextLaunchPushButton->setEnabled(true);
 
@@ -126,6 +136,9 @@ void MainWindow::StartNextPE()
     }
 
     if (++currentFile >= filesList.count()) {
+        ui->pathToExeFilesLineEdit->setEnabled(true);
+        ui->commandLineArgumentsLineEdit->setEnabled(true);
+        ui->pathToScreenShotsLineEdit->setEnabled(true);
         ui->LaunchPushButton->setEnabled(true);
         ui->NextLaunchPushButton->setEnabled(false);
         return;
@@ -141,7 +154,7 @@ void MainWindow::StartNextPE()
 
     STARTUPINFO info = { sizeof(info) };
     PROCESS_INFORMATION processInfo;
-    BOOL ok = CreateProcess(lpcwCommand, NULL, NULL, NULL, TRUE, 0, NULL, NULL, &info, &processInfo);
+    BOOL ok = CreateProcess(lpcwCommand, lpctsArg, NULL, NULL, TRUE, 0, NULL, NULL, &info, &processInfo);
 
     if (ok) {
         QString report(tr("%1 - Started successfully."));
