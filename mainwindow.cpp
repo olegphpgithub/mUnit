@@ -106,9 +106,6 @@ void MainWindow::launch()
         return;
     }
 
-    ZeroMemory(lpctsArg, sizeof(lpctsArg));
-    ui->commandLineArgumentsLineEdit->text().toWCharArray(lpctsArg);
-
     currentFile = -1;
     mtimer = NULL;
     ui->pathToExeFilesLineEdit->setEnabled(false);
@@ -151,6 +148,13 @@ void MainWindow::StartNextPE()
 
     ZeroMemory(lpcwCommand, sizeof(lpcwCommand));
     proc.toWCharArray(lpcwCommand);
+
+    QString commandLineArgumentsString = QString("%1 %2");
+    commandLineArgumentsString = commandLineArgumentsString.arg(proc);
+    commandLineArgumentsString = commandLineArgumentsString.arg(ui->commandLineArgumentsLineEdit->text());
+
+    ZeroMemory(lpctsArg, sizeof(lpctsArg));
+    commandLineArgumentsString.toWCharArray(lpctsArg);
 
     STARTUPINFO info = { sizeof(info) };
     PROCESS_INFORMATION processInfo;
