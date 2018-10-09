@@ -111,8 +111,10 @@ void MainWindow::launch()
     currentFile = -1;
     mtimer = NULL;
     ui->pathToExeFilesLineEdit->setEnabled(false);
+    ui->pathToExeFilesToolButton->setEnabled(false);
     ui->commandLineArgumentsLineEdit->setEnabled(false);
     ui->pathToScreenShotsLineEdit->setEnabled(false);
+    ui->pathToScreenShotsToolButton->setEnabled(false);
     ui->LaunchPushButton->setEnabled(false);
     ui->NextLaunchPushButton->setEnabled(true);
 
@@ -136,8 +138,10 @@ void MainWindow::StartNextPE()
 
     if (++currentFile >= filesList.count()) {
         ui->pathToExeFilesLineEdit->setEnabled(true);
+        ui->pathToExeFilesToolButton->setEnabled(true);
         ui->commandLineArgumentsLineEdit->setEnabled(true);
         ui->pathToScreenShotsLineEdit->setEnabled(true);
+        ui->pathToScreenShotsToolButton->setEnabled(true);
         ui->LaunchPushButton->setEnabled(true);
         ui->NextLaunchPushButton->setEnabled(false);
         return;
