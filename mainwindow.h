@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QMap>
 
+#include <Windows.h>
+
 class LaunchProcess;
 
 namespace Ui {
@@ -35,7 +37,8 @@ private:
     QStringList getFilesListToLaunch();
     int currentFile;
     LaunchProcess *mtimer;
-    wchar_t lpctsArg[1024];
+    wchar_t *lpctsArgs;
+    DWORD dwcArgs;
 };
 
 #endif // MAINWINDOW_H

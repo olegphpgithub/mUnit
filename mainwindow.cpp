@@ -37,6 +37,8 @@ MainWindow::MainWindow(QWidget *parent) :
     int timeOut = (settings.contains("timeOut")) ? settings.value("timeOut").value<int>() : 30;
     ui->timeOutSpinBox->setValue(timeOut);
 
+    lpctsArgs = NULL;
+    dwcArgs = 0;
 }
 
 MainWindow::~MainWindow()
@@ -153,12 +155,27 @@ void MainWindow::StartNextPE()
     commandLineArgumentsString = commandLineArgumentsString.arg(proc);
     commandLineArgumentsString = commandLineArgumentsString.arg(ui->commandLineArgumentsLineEdit->text());
 
-    ZeroMemory(lpctsArg, sizeof(lpctsArg));
-    commandLineArgumentsString.toWCharArray(lpctsArg);
+    if(lpctsArgs == NULL) {
+        dwcArgs = (commandLineArgumentsString.length() + 1) * sizeof(TCHAR);
+        lpctsArgs = (wchar_t*)LocalAlloc(LMEM_FIXED, dwcArgs);
+    } else {
+
+        DWORD dwcArgsNeeded = (commandLineArgumentsString.length() + 1) * sizeof(TCHAR);
+
+        if(dwcArgsNeeded > dwcArgs) {
+            LocalFree(lpctsArgs);
+            dwcArgs = (commandLineArgumentsString.length() + 1) * sizeof(TCHAR);
+            lpctsArgs = (wchar_t*)LocalAlloc(LMEM_FIXED, dwcArgs);
+        }
+
+    }
+
+    ZeroMemory(lpctsArgs, dwcArgs);
+    commandLineArgumentsString.toWCharArray(lpctsArgs);
 
     STARTUPINFO info = { sizeof(info) };
     PROCESS_INFORMATION processInfo;
-    BOOL ok = CreateProcess(lpcwCommand, lpctsArg, NULL, NULL, TRUE, 0, NULL, NULL, &info, &processInfo);
+    BOOL ok = CreateProcess(lpcwCommand, lpctsArgs, NULL, NULL, TRUE, 0, NULL, NULL, &info, &processInfo);
 
     if (ok) {
         QString report(tr("%1 - Started successfully."));
