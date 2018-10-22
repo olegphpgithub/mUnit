@@ -39,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     lpctsArgs = NULL;
     dwcArgs = 0;
+    currentDwProcessId = 0;
 }
 
 MainWindow::~MainWindow()
@@ -185,13 +186,13 @@ void MainWindow::StartNextPE()
         QString report(tr("%1 - Started successfully."));
         report = report.arg(proc);
         ui->resultTextEdit->append(report);
+        currentDwProcessId = processInfo.dwProcessId;
     }
 
     mtimer = new LaunchProcess();
     mtimer->setTimeout(ui->timeOutSpinBox->value());
     QObject::connect(mtimer, SIGNAL(log(QString)), this, SLOT(log(QString)));
     mtimer->start();
-
 }
 
 QStringList MainWindow::getFilesListToLaunch()
@@ -235,12 +236,38 @@ void MainWindow::log(QString logString)
     // ----- ScreenShot -----
 
 
+
+    // +++++ terminate processes +++++
+
     QMap<int, QString> processesAtWork = getProcessesList();
+
+    QString report = QString("");
+
+    if(processesAtWork.contains(currentDwProcessId)) {
+        report = QString("%1 - %2");
+        report = report.arg(processesAtWork.take(currentDwProcessId));
+        bool ok = TerminateProcessById(currentDwProcessId, 1);
+        if(ok) {
+            report = report.arg("Terminated successfully.");
+        } else {
+            report = report.arg("Failure to terminate process.");
+        }
+    } else {
+        report = QString("Parent process %1 - was not found!");
+        report = report.arg(processesAtWork.take(currentDwProcessId));
+    }
+
+    ui->resultTextEdit->append(report);
 
     QMap<int, QString>::const_iterator i = processesAtWork.constBegin();
     while (i != processesAtWork.constEnd()) {
 
         if(processesAtStart.contains(i.key())) {
+            i++;
+            continue;
+        }
+
+        if(processesAtStart.contains(currentDwProcessId)) {
             i++;
             continue;
         }
@@ -259,6 +286,8 @@ void MainWindow::log(QString logString)
 
         i++;
     }
+
+    // ----- terminate processes -----
 
     ui->resultTextEdit->append(logString);
 

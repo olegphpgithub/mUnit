@@ -14,9 +14,11 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    LaunchProcess.cpp
+    LaunchProcess.cpp \
+    launcher.cpp
 
 HEADERS  += mainwindow.h \
-    LaunchProcess.h
+    LaunchProcess.h \
+    launcher.h
 
 FORMS    += mainwindow.ui
