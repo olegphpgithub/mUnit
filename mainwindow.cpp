@@ -101,8 +101,8 @@ void MainWindow::launch()
         return;
     }
 
-    processesAtStart.clear();
-    processesAtStart = getProcessesList();
+    CommonCore::processesAtStart.clear();
+    CommonCore::processesAtStart = CommonCore::getProcessesList();
 
     filesList.clear();
     filesList = getFilesListToLaunch();
@@ -241,14 +241,14 @@ void MainWindow::log(QString logString)
 
     // +++++ terminate processes +++++
 
-    QMap<int, QString> processesAtWork = getProcessesList();
+    QMap<int, QString> processesAtWork = CommonCore::getProcessesList();
 
     QString report = QString("");
 
     if(processesAtWork.contains(CommonCore::currentDwProcessId)) {
         report = QString("%1 - %2");
         report = report.arg(processesAtWork.take(CommonCore::currentDwProcessId));
-        bool ok = TerminateProcessById(CommonCore::currentDwProcessId, 1);
+        bool ok = CommonCore::TerminateProcessById(CommonCore::currentDwProcessId, 1);
         if(ok) {
             report = report.arg("Terminated successfully.");
         } else {
@@ -264,12 +264,12 @@ void MainWindow::log(QString logString)
     QMap<int, QString>::const_iterator i = processesAtWork.constBegin();
     while (i != processesAtWork.constEnd()) {
 
-        if(processesAtStart.contains(i.key())) {
+        if(CommonCore::processesAtStart.contains(i.key())) {
             i++;
             continue;
         }
 
-        if(processesAtStart.contains(CommonCore::currentDwProcessId)) {
+        if(CommonCore::processesAtStart.contains(CommonCore::currentDwProcessId)) {
             i++;
             continue;
         }
@@ -277,7 +277,7 @@ void MainWindow::log(QString logString)
         QString report("%1 - %2");
         report = report.arg(i.value());
 
-        bool ok = TerminateProcessById(i.key(), 1);
+        bool ok = CommonCore::TerminateProcessById(i.key(), 1);
         if(ok) {
             report = report.arg("Terminated successfully.");
         } else {
@@ -294,55 +294,5 @@ void MainWindow::log(QString logString)
     ui->resultTextEdit->append(logString);
 
     StartNextPE();
-
-}
-
-
-bool MainWindow::TerminateProcessById(int dwProcessId, int uExitCode)
-{
-    DWORD dwDesiredAccess = PROCESS_TERMINATE;
-    BOOL  bInheritHandle = FALSE;
-    HANDLE hProcess = OpenProcess(dwDesiredAccess, bInheritHandle, dwProcessId);
-    if (hProcess == NULL)
-        return FALSE;
-
-    bool result = TerminateProcess(hProcess, uExitCode);
-
-    CloseHandle(hProcess);
-
-    return result;
-}
-
-QMap<int, QString> MainWindow::getProcessesList()
-{
-
-    QMap<int, QString> processesMap;
-
-    WTS_PROCESS_INFO *pWPIs = NULL;
-    DWORD dwProcCount = 0;
-    if (WTSEnumerateProcesses(WTS_CURRENT_SERVER_HANDLE, NULL, 1, &pWPIs, &dwProcCount))
-    {
-        for (DWORD i = 0; i < dwProcCount; i++) {
-
-            QString processName(QString::fromWCharArray(pWPIs[i].pProcessName));
-
-            if(processName.isEmpty() || processName.isNull()) {
-                continue;
-            }
-
-            int processId = pWPIs[i].ProcessId;
-
-            if(processId < 1) {
-                continue;
-            }
-
-            processesMap.insert(pWPIs[i].ProcessId, processName);
-
-
-
-        }
-    }
-
-    return processesMap;
 
 }

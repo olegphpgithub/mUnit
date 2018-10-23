@@ -29,9 +29,9 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
-    QMap<int, QString> processesAtStart;
-    QMap<int, QString> getProcessesList();
-    bool TerminateProcessById(int dwProcessId, int uExitCode);
+    //QMap<int, QString> processesAtStart;
+    //QMap<int, QString> getProcessesList();
+    //bool TerminateProcessById(int dwProcessId, int uExitCode);
     void StartNextPE();
     QStringList filesList;
     QStringList getFilesListToLaunch();

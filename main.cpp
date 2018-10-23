@@ -7,21 +7,8 @@
 #pragma comment(lib, "Advapi32.lib")
 
 DWORD CommonCore::currentDwProcessId;
+QMap<int, QString> CommonCore::processesAtStart;
 
-BOOL TerminateMyProcess(DWORD dwProcessId, UINT uExitCode)
-{
-    DWORD dwDesiredAccess = PROCESS_TERMINATE;
-    BOOL  bInheritHandle = FALSE;
-    HANDLE hProcess = OpenProcess(dwDesiredAccess, bInheritHandle, dwProcessId);
-    if (hProcess == NULL)
-        return FALSE;
-
-    BOOL result = TerminateProcess(hProcess, uExitCode);
-
-    CloseHandle(hProcess);
-
-    return result;
-}
 
 BOOL gIsWinXP()
 {
@@ -112,4 +99,5 @@ int main(int argc, char *argv[])
     w.show();
 
     return a.exec();
+
 }
