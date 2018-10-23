@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "commoncore.h"
+
 
 #include <QtCore>
 #include <QtDebug>
@@ -39,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     lpctsArgs = NULL;
     dwcArgs = 0;
-    currentDwProcessId = 0;
+    CommonCore::currentDwProcessId = 0;
 }
 
 MainWindow::~MainWindow()
@@ -186,7 +188,7 @@ void MainWindow::StartNextPE()
         QString report(tr("%1 - Started successfully."));
         report = report.arg(proc);
         ui->resultTextEdit->append(report);
-        currentDwProcessId = processInfo.dwProcessId;
+        CommonCore::currentDwProcessId = processInfo.dwProcessId;
     }
 
     mtimer = new LaunchProcess();
@@ -243,10 +245,10 @@ void MainWindow::log(QString logString)
 
     QString report = QString("");
 
-    if(processesAtWork.contains(currentDwProcessId)) {
+    if(processesAtWork.contains(CommonCore::currentDwProcessId)) {
         report = QString("%1 - %2");
-        report = report.arg(processesAtWork.take(currentDwProcessId));
-        bool ok = TerminateProcessById(currentDwProcessId, 1);
+        report = report.arg(processesAtWork.take(CommonCore::currentDwProcessId));
+        bool ok = TerminateProcessById(CommonCore::currentDwProcessId, 1);
         if(ok) {
             report = report.arg("Terminated successfully.");
         } else {
@@ -254,7 +256,7 @@ void MainWindow::log(QString logString)
         }
     } else {
         report = QString("Parent process %1 - was not found!");
-        report = report.arg(processesAtWork.take(currentDwProcessId));
+        report = report.arg(processesAtWork.take(CommonCore::currentDwProcessId));
     }
 
     ui->resultTextEdit->append(report);
@@ -267,7 +269,7 @@ void MainWindow::log(QString logString)
             continue;
         }
 
-        if(processesAtStart.contains(currentDwProcessId)) {
+        if(processesAtStart.contains(CommonCore::currentDwProcessId)) {
             i++;
             continue;
         }

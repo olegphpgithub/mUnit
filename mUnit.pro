@@ -15,10 +15,12 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     LaunchProcess.cpp \
-    launcher.cpp
+    launcher.cpp \
+    commoncore.cpp
 
 HEADERS  += mainwindow.h \
     LaunchProcess.h \
-    launcher.h
+    launcher.h \
+    commoncore.h
 
 FORMS    += mainwindow.ui

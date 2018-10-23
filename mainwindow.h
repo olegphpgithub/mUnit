@@ -39,7 +39,7 @@ private:
     LaunchProcess *mtimer;
     wchar_t *lpctsArgs;
     DWORD dwcArgs;
-    DWORD currentDwProcessId;
+    //DWORD currentDwProcessId;
 };
 
 #endif // MAINWINDOW_H

@@ -1,9 +1,12 @@
 #include "mainwindow.h"
+#include "commoncore.h"
 #include <QApplication>
 
 #include <Windows.h>
 
 #pragma comment(lib, "Advapi32.lib")
+
+DWORD CommonCore::currentDwProcessId;
 
 BOOL TerminateMyProcess(DWORD dwProcessId, UINT uExitCode)
 {
