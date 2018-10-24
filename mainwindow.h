@@ -19,20 +19,22 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void interrupt(QString logString);
 
 public slots:
     void launch();
     void nextLaunch();
     void log(QString);
+    void timedout(QString);
     void choosePathToExeFiles();
     void choosePathToScreenShots();
+    void StartNextPE();
 
 private:
     Ui::MainWindow *ui;
     QMap<int, QString> processesAtStart;
     QMap<int, QString> getProcessesList();
     bool TerminateProcessById(int dwProcessId, int uExitCode);
-    void StartNextPE();
     QStringList filesList;
     QStringList getFilesListToLaunch();
     int currentFile;
@@ -40,6 +42,8 @@ private:
     wchar_t *lpctsArgs;
     DWORD dwcArgs;
     DWORD currentDwProcessId;
+signals:
+    void submitLog(QString);
 };
 
 #endif // MAINWINDOW_H

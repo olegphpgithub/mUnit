@@ -1,14 +1,18 @@
 #ifndef LAUNCHER_H
 #define LAUNCHER_H
 
-#include <QObject>
+#include <QtCore>
 
-class Launcher : public QObject
+class MainWindow;
+
+class Launcher : public QThread
 {
     Q_OBJECT
 public:
     explicit Launcher(QObject *parent = 0);
-
+    void run();
+    void setmw(MainWindow *w);
+    MainWindow *mw;
 signals:
 
 public slots:

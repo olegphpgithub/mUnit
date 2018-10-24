@@ -12,6 +12,7 @@
 #pragma comment(lib, "Wtsapi32.lib")
 
 #include "LaunchProcess.h"
+#include "Launcher.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -36,6 +37,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     int timeOut = (settings.contains("timeOut")) ? settings.value("timeOut").value<int>() : 30;
     ui->timeOutSpinBox->setValue(timeOut);
+
+    QObject::connect(this, SIGNAL(submitLog(QString)), this, SLOT(log(QString)));
 
     lpctsArgs = NULL;
     dwcArgs = 0;
@@ -133,7 +136,7 @@ void MainWindow::StartNextPE()
 {
 
     if(mtimer != NULL) {
-        QObject::disconnect(mtimer, SIGNAL(log(QString)), this, SLOT(log(QString)));
+        QObject::disconnect(mtimer, SIGNAL(log(QString)), this, SLOT(timedout(QString)));
         mtimer->deleteLater();
     }
 
@@ -191,7 +194,7 @@ void MainWindow::StartNextPE()
 
     mtimer = new LaunchProcess();
     mtimer->setTimeout(ui->timeOutSpinBox->value());
-    QObject::connect(mtimer, SIGNAL(log(QString)), this, SLOT(log(QString)));
+    QObject::connect(mtimer, SIGNAL(log(QString)), this, SLOT(timedout(QString)));
     mtimer->start();
 }
 
@@ -212,7 +215,20 @@ QStringList MainWindow::getFilesListToLaunch()
 
 void MainWindow::log(QString logString)
 {
+    ui->resultTextEdit->append(logString);
+}
 
+
+void MainWindow::timedout(QString logString)
+{
+    Launcher *l = new Launcher();
+    l->setmw(this);
+    QObject::connect(l, SIGNAL(finished()), this, SLOT(StartNextPE()));
+    l->start();
+}
+
+void MainWindow::interrupt(QString logString)
+{
 
     // +++++ ScreenShot +++++
     QFileInfo fileInfo(filesList.at(currentFile));
@@ -256,8 +272,10 @@ void MainWindow::log(QString logString)
         report = QString("Parent process %1 - was not found!");
         report = report.arg(processesAtWork.take(currentDwProcessId));
     }
-
-    ui->resultTextEdit->append(report);
+    QThread::sleep(3);
+    emit(submitLog(report));
+    QThread::sleep(3);
+    emit(submitLog(report));
 
     QMap<int, QString>::const_iterator i = processesAtWork.constBegin();
     while (i != processesAtWork.constEnd()) {
@@ -282,16 +300,16 @@ void MainWindow::log(QString logString)
             report = report.arg("Failure to terminate process.");
         }
 
-        ui->resultTextEdit->append(report);
+        //ui->resultTextEdit->append(report);
+        emit(submitLog(report));
 
         i++;
     }
 
     // ----- terminate processes -----
 
-    ui->resultTextEdit->append(logString);
-
-    StartNextPE();
+    //ui->resultTextEdit->append(logString);
+    emit(submitLog(logString));
 
 }
 
