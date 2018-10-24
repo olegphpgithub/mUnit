@@ -13,6 +13,7 @@ public:
     ~LaunchProcess();
     void setTimeout(int timeOut);
 signals:
+    void comingToAnEnd();
     void log(QString);
 public slots:
 };

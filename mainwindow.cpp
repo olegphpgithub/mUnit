@@ -113,6 +113,7 @@ void MainWindow::launch()
     }
 
     currentFile = -1;
+    lctot = lcsuc = lcerr = 0;
     mtimer = NULL;
     ui->pathToExeFilesLineEdit->setEnabled(false);
     ui->pathToExeFilesToolButton->setEnabled(false);
@@ -120,7 +121,8 @@ void MainWindow::launch()
     ui->pathToScreenShotsLineEdit->setEnabled(false);
     ui->pathToScreenShotsToolButton->setEnabled(false);
     ui->LaunchPushButton->setEnabled(false);
-    ui->NextLaunchPushButton->setEnabled(true);
+
+    updateStatusBar();
 
     StartNextPE();
 
@@ -128,15 +130,18 @@ void MainWindow::launch()
 
 void MainWindow::nextLaunch()
 {
+    ui->NextLaunchPushButton->setEnabled(false);
     mtimer->terminate();
-    emit log(QString("Continue"));
 }
 
 void MainWindow::StartNextPE()
 {
 
+    updateStatusBar();
+
     if(mtimer != NULL) {
-        QObject::disconnect(mtimer, SIGNAL(log(QString)), this, SLOT(timedout(QString)));
+        QObject::disconnect(mtimer, SIGNAL(comingToAnEnd()), this, SLOT(doNotHaveMuchTime()));
+        QObject::disconnect(mtimer, SIGNAL(finished()), this, SLOT(timeoutExceeded()));
         mtimer->deleteLater();
     }
 
@@ -190,12 +195,17 @@ void MainWindow::StartNextPE()
         report = report.arg(proc);
         ui->resultTextEdit->append(report);
         currentDwProcessId = processInfo.dwProcessId;
+        lctot++;
     }
 
     mtimer = new LaunchProcess();
     mtimer->setTimeout(ui->timeOutSpinBox->value());
-    QObject::connect(mtimer, SIGNAL(log(QString)), this, SLOT(timedout(QString)));
+    QObject::connect(mtimer, SIGNAL(comingToAnEnd()), this, SLOT(doNotHaveMuchTime()));
+    QObject::connect(mtimer, SIGNAL(finished()), this, SLOT(timeoutExceeded()));
     mtimer->start();
+
+    ui->NextLaunchPushButton->setEnabled(true);
+
 }
 
 QStringList MainWindow::getFilesListToLaunch()
@@ -218,8 +228,12 @@ void MainWindow::log(QString logString)
     ui->resultTextEdit->append(logString);
 }
 
+void MainWindow::doNotHaveMuchTime()
+{
+    ui->NextLaunchPushButton->setEnabled(false);
+}
 
-void MainWindow::timedout(QString logString)
+void MainWindow::timeoutExceeded()
 {
     Launcher *l = new Launcher();
     l->setmw(this);
@@ -265,17 +279,18 @@ void MainWindow::interrupt(QString logString)
         bool ok = TerminateProcessById(currentDwProcessId, 1);
         if(ok) {
             report = report.arg("Terminated successfully.");
+            lcsuc++;
         } else {
             report = report.arg("Failure to terminate process.");
+            lcerr++;
         }
     } else {
         report = QString("Parent process %1 - was not found!");
         report = report.arg(processesAtWork.take(currentDwProcessId));
+        lcerr++;
     }
-    QThread::sleep(3);
-    emit(submitLog(report));
-    QThread::sleep(3);
-    emit(submitLog(report));
+
+    emit submitLog(report);
 
     QMap<int, QString>::const_iterator i = processesAtWork.constBegin();
     while (i != processesAtWork.constEnd()) {
@@ -300,16 +315,14 @@ void MainWindow::interrupt(QString logString)
             report = report.arg("Failure to terminate process.");
         }
 
-        //ui->resultTextEdit->append(report);
-        emit(submitLog(report));
+        emit submitLog(report);
 
         i++;
     }
 
     // ----- terminate processes -----
 
-    //ui->resultTextEdit->append(logString);
-    emit(submitLog(logString));
+    emit submitLog(logString);
 
 }
 
@@ -361,4 +374,14 @@ QMap<int, QString> MainWindow::getProcessesList()
 
     return processesMap;
 
+}
+
+
+void MainWindow::updateStatusBar()
+{
+    QString statusBarMsg("Launch: %1, Success: %2, Error: %3");
+    statusBarMsg = statusBarMsg.arg(lctot);
+    statusBarMsg = statusBarMsg.arg(lcsuc);
+    statusBarMsg = statusBarMsg.arg(lcerr);
+    ui->statusBar->showMessage(statusBarMsg, 0);
 }

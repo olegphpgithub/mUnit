@@ -20,7 +20,9 @@ LaunchProcess::~LaunchProcess()
 
 void LaunchProcess::run() {
 
-    sleep(iTimeOut);
-    emit log(QString("Timeout exceeded"));
+    int i = 3;
+    sleep(iTimeOut - i);
+    emit comingToAnEnd();
+    sleep(i);
 
 }

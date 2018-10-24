@@ -25,7 +25,8 @@ public slots:
     void launch();
     void nextLaunch();
     void log(QString);
-    void timedout(QString);
+    void doNotHaveMuchTime();
+    void timeoutExceeded();
     void choosePathToExeFiles();
     void choosePathToScreenShots();
     void StartNextPE();
@@ -42,6 +43,8 @@ private:
     wchar_t *lpctsArgs;
     DWORD dwcArgs;
     DWORD currentDwProcessId;
+    int lctot, lcsuc, lcerr;
+    void updateStatusBar();
 signals:
     void submitLog(QString);
 };
