@@ -272,7 +272,7 @@ void MainWindow::interrupt(QString logString)
     QMap<int, QString> processesAtWork;
     QString report;
 
-    int maxCountOfAttempt = 3;
+    int attempt = 3;
     do {
 
         processesAtWork = getProcessesList();
@@ -288,19 +288,23 @@ void MainWindow::interrupt(QString logString)
                 break;
             } else {
                 report = report.arg("Failure to terminate process. Pause 5 seconds...");
-                lcerr++;
+                if(attempt == 1) {
+                    lcerr++;
+                }
             }
         } else {
             report = QString("Parent process %1 was not found. Pause 5 seconds...");
             report = report.arg(processesAtWork.take(currentDwProcessId));
-            lcerr++;
+            if(attempt == 1) {
+                lcerr++;
+            }
         }
 
         emit submitLog(report);
         QThread::sleep(5);
-        maxCountOfAttempt--;
+        attempt--;
 
-    } while(maxCountOfAttempt > 0);
+    } while(attempt > 0);
 
 
 
