@@ -269,28 +269,40 @@ void MainWindow::interrupt(QString logString)
 
     // +++++ terminate processes +++++
 
-    QMap<int, QString> processesAtWork = getProcessesList();
+    QMap<int, QString> processesAtWork;
+    QString report;
 
-    QString report = QString("");
+    int maxCountOfAttempt = 3;
+    do {
 
-    if(processesAtWork.contains(currentDwProcessId)) {
-        report = QString("%1 - %2");
-        report = report.arg(processesAtWork.take(currentDwProcessId));
-        bool ok = TerminateProcessById(currentDwProcessId, 1);
-        if(ok) {
-            report = report.arg("Terminated successfully.");
-            lcsuc++;
+        processesAtWork = getProcessesList();
+        report = QString("");
+
+        if(processesAtWork.contains(currentDwProcessId)) {
+            report = QString("%1 - %2");
+            report = report.arg(processesAtWork.take(currentDwProcessId));
+            bool ok = TerminateProcessById(currentDwProcessId, 1);
+            if(ok) {
+                report = report.arg("Terminated successfully.");
+                lcsuc++;
+                break;
+            } else {
+                report = report.arg("Failure to terminate process. Pause 5 seconds...");
+                lcerr++;
+            }
         } else {
-            report = report.arg("Failure to terminate process.");
+            report = QString("Parent process %1 was not found. Pause 5 seconds...");
+            report = report.arg(processesAtWork.take(currentDwProcessId));
             lcerr++;
         }
-    } else {
-        report = QString("Parent process %1 - was not found!");
-        report = report.arg(processesAtWork.take(currentDwProcessId));
-        lcerr++;
-    }
 
-    emit submitLog(report);
+        emit submitLog(report);
+        QThread::sleep(5);
+        maxCountOfAttempt--;
+
+    } while(maxCountOfAttempt > 0);
+
+
 
     QMap<int, QString>::const_iterator i = processesAtWork.constBegin();
     while (i != processesAtWork.constEnd()) {
