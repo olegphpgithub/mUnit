@@ -241,7 +241,7 @@ void MainWindow::timeoutExceeded()
     l->start();
 }
 
-void MainWindow::interrupt(QString logString)
+void MainWindow::interrupt()
 {
 
     // +++++ ScreenShot +++++
@@ -294,7 +294,7 @@ void MainWindow::interrupt(QString logString)
             }
         } else {
             report = QString("Parent process %1 was not found. Pause 5 seconds...");
-            report = report.arg(processesAtWork.take(currentDwProcessId));
+            report = report.arg(filesList.at(currentFile));
             if(attempt == 1) {
                 lcerr++;
             }
@@ -337,8 +337,6 @@ void MainWindow::interrupt(QString logString)
     }
 
     // ----- terminate processes -----
-
-    emit submitLog(logString);
 
 }
 

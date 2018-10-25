@@ -19,7 +19,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void interrupt(QString logString);
+    void interrupt();
 
 public slots:
     void launch();

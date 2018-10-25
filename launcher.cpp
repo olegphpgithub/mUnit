@@ -13,5 +13,5 @@ void Launcher::setmw(MainWindow *w)
 
 void Launcher::run()
 {
-    this->mw->interrupt(QString("from thread"));
+    this->mw->interrupt();
 }
