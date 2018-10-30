@@ -1,4 +1,4 @@
-#include "launcher.h"
+#include "Launcher.h"
 #include "mainwindow.h"
 
 Launcher::Launcher(QObject *parent) : QThread(parent)

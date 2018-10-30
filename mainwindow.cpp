@@ -300,13 +300,12 @@ void MainWindow::interrupt()
             }
         }
 
-        emit submitLog(report);
         QThread::sleep(5);
         attempt--;
 
     } while(attempt > 0);
 
-
+    emit submitLog(report);
 
     QMap<int, QString>::const_iterator i = processesAtWork.constBegin();
     while (i != processesAtWork.constEnd()) {
