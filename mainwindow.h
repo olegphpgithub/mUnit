@@ -45,6 +45,7 @@ private:
     DWORD currentDwProcessId;
     int lctot, lcsuc, lcerr;
     void updateStatusBar();
+    void preLaunchEvent();
 signals:
     void submitLog(QString);
 };

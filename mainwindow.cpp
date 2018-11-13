@@ -134,8 +134,20 @@ void MainWindow::nextLaunch()
     mtimer->terminate();
 }
 
+void MainWindow::preLaunchEvent()
+{
+    HKEY hKey;
+    LONG res = RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Software\\NorthInstaller"), 0, KEY_READ, &hKey);
+    if (res == ERROR_SUCCESS)
+    {
+        RegDeleteTree(HKEY_CURRENT_USER, TEXT("Software\\NorthInstaller"));
+    }
+}
+
 void MainWindow::StartNextPE()
 {
+
+    preLaunchEvent();
 
     updateStatusBar();
 
