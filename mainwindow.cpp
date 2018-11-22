@@ -361,7 +361,7 @@ void MainWindow::interrupt()
                 rx.setPatternSyntax(QRegExp::Wildcard);
                 match = rx.exactMatch(i.value());
                 if(match) {
-                    continue;
+                    break;
                 }
             }
             
