@@ -37,6 +37,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     int timeOut = (settings.contains("timeOut")) ? settings.value("timeOut").value<int>() : 30;
     ui->timeOutSpinBox->setValue(timeOut);
+    
+    QString terminateProcessByMask = settings.value("terminateProcessByMask").value<QString>();
+    ui->terminateProcessByMaskLineEdit->setText(terminateProcessByMask);
 
     QObject::connect(this, SIGNAL(submitLog(QString)), this, SLOT(log(QString)));
 
@@ -52,6 +55,7 @@ MainWindow::~MainWindow()
     settings.setValue("commandLineArguments", ui->commandLineArgumentsLineEdit->text());
     settings.setValue("pathToScreenShots", ui->pathToScreenShotsLineEdit->text());
     settings.setValue("timeOut", ui->timeOutSpinBox->value());
+    settings.setValue("terminateProcessByMask", ui->terminateProcessByMaskLineEdit->text());
     settings.sync();
 
     delete ui;
@@ -336,14 +340,14 @@ void MainWindow::interrupt()
         /** +++++ Check process mask +++++ */
         
         if(
-            !(ui->TerminateProcessByMaskLineEdit->text().isNull()
-            || ui->TerminateProcessByMaskLineEdit->text().isEmpty())
+            !(ui->terminateProcessByMaskLineEdit->text().isNull()
+            || ui->terminateProcessByMaskLineEdit->text().isEmpty())
         )
         {
             
             bool match = false;
             
-            QString maskString = ui->TerminateProcessByMaskLineEdit->text();
+            QString maskString = ui->terminateProcessByMaskLineEdit->text();
             
             QStringList maskStringList = maskString.split('|', QString::SkipEmptyParts);
             

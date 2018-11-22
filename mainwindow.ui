@@ -113,7 +113,7 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
-         <widget class="QLineEdit" name="TerminateProcessByMaskLineEdit"/>
+         <widget class="QLineEdit" name="terminateProcessByMaskLineEdit"/>
         </item>
        </layout>
       </item>
