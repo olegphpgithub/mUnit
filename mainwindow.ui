@@ -106,7 +106,7 @@
       <item>
        <widget class="QLabel" name="TerminateProcessByMaskLabel">
         <property name="text">
-         <string>Terminate process by mask:</string>
+         <string>Terminate process by mask (separator is '|'):</string>
         </property>
        </widget>
       </item>

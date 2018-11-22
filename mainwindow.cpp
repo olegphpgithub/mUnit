@@ -321,7 +321,7 @@ void MainWindow::interrupt()
 
     QMap<int, QString>::const_iterator i = processesAtWork.constBegin();
     while (i != processesAtWork.constEnd()) {
-
+        
         if(processesAtStart.contains(i.key())) {
             i++;
             continue;
@@ -331,6 +331,39 @@ void MainWindow::interrupt()
             i++;
             continue;
         }
+        
+        
+        /** +++++ Check process mask +++++ */
+        
+        if(
+            !(ui->TerminateProcessByMaskLineEdit->text().isNull()
+            || ui->TerminateProcessByMaskLineEdit->text().isEmpty())
+        )
+        {
+            
+            bool match = false;
+            
+            QString maskString = ui->TerminateProcessByMaskLineEdit->text();
+            
+            QStringList maskStringList = maskString.split('|', QString::SkipEmptyParts);
+            
+            QStringList result;
+            foreach (const QString &str, maskStringList) {
+                qDebug() << str;
+                QRegExp rx(str);
+                rx.setPatternSyntax(QRegExp::Wildcard);
+                match = rx.exactMatch(i.value());
+            }
+            
+            if(!match) {
+                i++;
+                continue;
+            }
+            
+        }
+        
+        /** ----- Check process mask ----- */
+        
 
         QString report("%1 - %2");
         report = report.arg(i.value());
