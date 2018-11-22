@@ -360,6 +360,9 @@ void MainWindow::interrupt()
                 QRegExp rx(str);
                 rx.setPatternSyntax(QRegExp::Wildcard);
                 match = rx.exactMatch(i.value());
+                if(match) {
+                    continue;
+                }
             }
             
             if(!match) {
