@@ -12,6 +12,7 @@
 #pragma comment(lib, "Wtsapi32.lib")
 
 #include "LaunchProcess.h"
+#include "VerifyEmbeddedSignatureThread.h"
 #include "Launcher.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -99,6 +100,16 @@ void MainWindow::choosePathToScreenShots()
 void MainWindow::launch()
 {
 
+
+    ui->pathToExeFilesLineEdit->setEnabled(false);
+    ui->pathToExeFilesToolButton->setEnabled(false);
+    ui->commandLineArgumentsLineEdit->setEnabled(false);
+    ui->pathToScreenShotsLineEdit->setEnabled(false);
+    ui->LaunchPushButton->setEnabled(true);
+    ui->pathToScreenShotsToolButton->setEnabled(false);
+
+    ui->LaunchPushButton->setEnabled(false);
+
     if(ui->pathToExeFilesLineEdit->text().isNull() || ui->pathToExeFilesLineEdit->text().isEmpty()) {
         QMessageBox::critical(this, tr(""), tr("Choose the directory."), QMessageBox::Cancel);
         return;
@@ -119,21 +130,43 @@ void MainWindow::launch()
         return;
     }
 
-    currentFile = -1;
-    lctot = lcsuc = lcerr = 0;
-    mtimer = NULL;
-    ui->pathToExeFilesLineEdit->setEnabled(false);
-    ui->pathToExeFilesToolButton->setEnabled(false);
-    ui->commandLineArgumentsLineEdit->setEnabled(false);
-    ui->pathToScreenShotsLineEdit->setEnabled(false);
-    ui->pathToScreenShotsToolButton->setEnabled(false);
-    ui->LaunchPushButton->setEnabled(false);
+    VerifyEmbeddedSignatureThread *v = new VerifyEmbeddedSignatureThread();
+    QObject::connect(v, SIGNAL(done(bool, QStringList)), this, SLOT(verifyBeforeLaunch(bool, QStringList)));
+    v->start();
 
-    updateStatusBar();
-
-    StartNextPE();
+    //verifyBeforeLaunch();
 
 }
+
+void MainWindow::verifyBeforeLaunch(bool ok, QStringList badFiles)
+{
+
+    foreach(const QString &badFile, badFiles) {
+        ui->resultTextEdit->append(badFile);
+    }
+
+    if(!ok) {
+
+        ui->pathToExeFilesLineEdit->setEnabled(true);
+        ui->pathToExeFilesToolButton->setEnabled(true);
+        ui->commandLineArgumentsLineEdit->setEnabled(true);
+        ui->pathToScreenShotsLineEdit->setEnabled(true);
+        ui->pathToScreenShotsToolButton->setEnabled(true);
+        ui->LaunchPushButton->setEnabled(true);
+        ui->NextLaunchPushButton->setEnabled(false);
+
+    } else {
+
+        currentFile = -1;
+        lctot = lcsuc = lcerr = 0;
+        mtimer = NULL;
+
+        updateStatusBar();
+        StartNextPE();
+
+    }
+}
+
 
 void MainWindow::nextLaunch()
 {

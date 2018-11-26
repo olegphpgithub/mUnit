@@ -15,10 +15,12 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     LaunchProcess.cpp \
-    Launcher.cpp
+    Launcher.cpp \
+    VerifyEmbeddedSignatureThread.cpp
 
 HEADERS  += mainwindow.h \
     LaunchProcess.h \
-    Launcher.h
+    Launcher.h \
+    VerifyEmbeddedSignatureThread.h
 
 FORMS    += mainwindow.ui

@@ -23,6 +23,7 @@ public:
 
 public slots:
     void launch();
+    void verifyBeforeLaunch(bool ok, QStringList badFiles);
     void nextLaunch();
     void log(QString);
     void doNotHaveMuchTime();
