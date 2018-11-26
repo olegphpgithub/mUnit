@@ -9,6 +9,8 @@
 
 // Link with the Wintrust.lib file.
 #pragma comment (lib, "wintrust")
+#pragma comment (lib, "User32")
+
 
 VerifyEmbeddedSignatureThread::VerifyEmbeddedSignatureThread(QObject *parent) : QThread(parent)
 {
@@ -20,18 +22,42 @@ VerifyEmbeddedSignatureThread::~VerifyEmbeddedSignatureThread()
     qDebug() << "VerifyEmbeddedSignatureThread destructor";
 }
 
-void VerifyEmbeddedSignatureThread::run() {
+void VerifyEmbeddedSignatureThread::setFilesForVerify(QStringList *pFilesForVerify)
+{
+    filesForVerify = pFilesForVerify;
+}
 
-    sleep(2);
+void VerifyEmbeddedSignatureThread::run()
+{
+
+    success = true;
+
     QStringList badFilesStringList;
-    badFilesStringList.append(QString("success"));
-    emit done(true, badFilesStringList);
+
+    foreach(const QString fileForVerify, *filesForVerify) {
+
+        DWORD dwcch = (fileForVerify.length() + 1) * sizeof(TCHAR);
+        LPWSTR lpwstrFileForVerify = (wchar_t*)LocalAlloc(LMEM_FIXED, dwcch);
+        ZeroMemory(lpwstrFileForVerify, dwcch);
+        fileForVerify.toWCharArray(lpwstrFileForVerify);
+
+        bool ok = VerifyEmbeddedSignature(lpwstrFileForVerify);
+        if(!ok) {
+            success = false;
+            badFilesStringList.append(fileForVerify);
+        }
+
+    }
+
+    emit done(success, badFilesStringList);
 
 }
 
 
-BOOL VerifyEmbeddedSignature(LPCWSTR pwszSourceFile)
+bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(LPCWSTR pwszSourceFile)
 {
+
+    bool success = false;
     LONG lStatus;
     DWORD dwLastError;
 
@@ -128,6 +154,7 @@ BOOL VerifyEmbeddedSignature(LPCWSTR pwszSourceFile)
         "Yes" when asked to install and run the signed
         subject.
         */
+        success = true;
         wprintf_s(L"The file \"%s\" is signed and the signature "
             L"was verified.\n",
             pwszSourceFile);
@@ -194,13 +221,5 @@ BOOL VerifyEmbeddedSignature(LPCWSTR pwszSourceFile)
         break;
     }
 
-    // Any hWVTStateData must be released by a call with close.
-    WinTrustData.dwStateAction = WTD_STATEACTION_CLOSE;
-
-    lStatus = WinVerifyTrust(
-        NULL,
-        &WVTPolicyGUID,
-        &WinTrustData);
-
-    return true;
+    return success;
 }

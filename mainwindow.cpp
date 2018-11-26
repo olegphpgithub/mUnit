@@ -100,7 +100,6 @@ void MainWindow::choosePathToScreenShots()
 void MainWindow::launch()
 {
 
-
     ui->pathToExeFilesLineEdit->setEnabled(false);
     ui->pathToExeFilesToolButton->setEnabled(false);
     ui->commandLineArgumentsLineEdit->setEnabled(false);
@@ -131,6 +130,7 @@ void MainWindow::launch()
     }
 
     VerifyEmbeddedSignatureThread *v = new VerifyEmbeddedSignatureThread();
+    v->setFilesForVerify(&filesList);
     QObject::connect(v, SIGNAL(done(bool, QStringList)), this, SLOT(verifyBeforeLaunch(bool, QStringList)));
     v->start();
 
