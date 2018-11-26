@@ -134,8 +134,6 @@ void MainWindow::launch()
     QObject::connect(v, SIGNAL(done(bool, QStringList)), this, SLOT(verifyBeforeLaunch(bool, QStringList)));
     v->start();
 
-    //verifyBeforeLaunch();
-
 }
 
 void MainWindow::verifyBeforeLaunch(bool ok, QStringList badFiles)
