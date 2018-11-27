@@ -13,7 +13,7 @@ class VerifyEmbeddedSignatureThread : public QThread
     void run();
     bool success;
     QStringList *filesForVerify;
-    bool VerifyEmbeddedSignature(LPCWSTR pwszSourceFile);
+    bool VerifyEmbeddedSignature(LPCWSTR pwszSourceFile, QString *logString);
 public:
     explicit VerifyEmbeddedSignatureThread(QObject *parent = 0);
     ~VerifyEmbeddedSignatureThread();

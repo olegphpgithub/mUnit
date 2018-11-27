@@ -9,7 +9,6 @@
 
 // Link with the Wintrust.lib file.
 #pragma comment (lib, "wintrust")
-#pragma comment (lib, "User32")
 
 
 VerifyEmbeddedSignatureThread::VerifyEmbeddedSignatureThread(QObject *parent) : QThread(parent)
@@ -33,6 +32,7 @@ void VerifyEmbeddedSignatureThread::run()
     success = true;
 
     QStringList badFilesStringList;
+    QStringList logStringList;
 
     foreach(const QString fileForVerify, *filesForVerify) {
 
@@ -41,11 +41,15 @@ void VerifyEmbeddedSignatureThread::run()
         ZeroMemory(lpwstrFileForVerify, dwcch);
         fileForVerify.toWCharArray(lpwstrFileForVerify);
 
-        bool ok = VerifyEmbeddedSignature(lpwstrFileForVerify);
+        QString logString;
+
+        bool ok = VerifyEmbeddedSignature(lpwstrFileForVerify, &logString);
         if(!ok) {
             success = false;
             badFilesStringList.append(fileForVerify);
         }
+
+        LocalFree(lpwstrFileForVerify);
 
     }
 
@@ -54,7 +58,7 @@ void VerifyEmbeddedSignatureThread::run()
 }
 
 
-bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(LPCWSTR pwszSourceFile)
+bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(LPCWSTR pwszSourceFile, QString *logString)
 {
 
     bool success = false;

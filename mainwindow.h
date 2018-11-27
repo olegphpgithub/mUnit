@@ -7,6 +7,7 @@
 #include <Windows.h>
 
 class LaunchProcess;
+class VerifyEmbeddedSignatureThread;
 
 namespace Ui {
 class MainWindow;
@@ -41,6 +42,7 @@ private:
     QStringList getFilesListToLaunch();
     int currentFile;
     LaunchProcess *mtimer;
+    VerifyEmbeddedSignatureThread *verifier;
     wchar_t *lpctsArgs;
     DWORD dwcArgs;
     DWORD currentDwProcessId;

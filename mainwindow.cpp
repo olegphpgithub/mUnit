@@ -129,15 +129,17 @@ void MainWindow::launch()
         return;
     }
 
-    VerifyEmbeddedSignatureThread *v = new VerifyEmbeddedSignatureThread();
-    v->setFilesForVerify(&filesList);
-    QObject::connect(v, SIGNAL(done(bool, QStringList)), this, SLOT(verifyBeforeLaunch(bool, QStringList)));
-    v->start();
+    verifier = new VerifyEmbeddedSignatureThread();
+    verifier->setFilesForVerify(&filesList);
+    QObject::connect(verifier, SIGNAL(done(bool, QStringList)), this, SLOT(verifyBeforeLaunch(bool, QStringList)));
+    verifier->start();
 
 }
 
 void MainWindow::verifyBeforeLaunch(bool ok, QStringList badFiles)
 {
+    QObject::disconnect(verifier, SIGNAL(done(bool, QStringList)), this, SLOT(verifyBeforeLaunch(bool, QStringList)));
+    verifier->deleteLater();
 
     foreach(const QString &badFile, badFiles) {
         ui->resultTextEdit->append(badFile);
