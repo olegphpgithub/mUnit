@@ -4,6 +4,7 @@
 #include <QtDebug>
 
 #include <windows.h>
+#include <strsafe.h>
 #include <Softpub.h>
 #include <wintrust.h>
 
@@ -31,39 +32,43 @@ void VerifyEmbeddedSignatureThread::run()
 
     success = true;
 
-    QStringList badFilesStringList;
     QStringList logStringList;
 
     foreach(const QString fileForVerify, *filesForVerify) {
 
-        DWORD dwcch = (fileForVerify.length() + 1) * sizeof(TCHAR);
-        LPWSTR lpwstrFileForVerify = (wchar_t*)LocalAlloc(LMEM_FIXED, dwcch);
-        ZeroMemory(lpwstrFileForVerify, dwcch);
-        fileForVerify.toWCharArray(lpwstrFileForVerify);
-
         QString logString;
 
-        bool ok = VerifyEmbeddedSignature(lpwstrFileForVerify, &logString);
+        bool ok = VerifyEmbeddedSignature(fileForVerify, &logString);
         if(!ok) {
             success = false;
-            badFilesStringList.append(fileForVerify);
+            logStringList.append(logString);
         }
-
-        LocalFree(lpwstrFileForVerify);
 
     }
 
-    emit done(success, badFilesStringList);
+    if(success) {
+        logStringList.append(QString("All files are signed and the signatures were verified."));
+    }
+
+    emit done(success, logStringList);
 
 }
 
 
-bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(LPCWSTR pwszSourceFile, QString *logString)
+bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(QString fileForVerify, QString *logString)
 {
 
     bool success = false;
     LONG lStatus;
     DWORD dwLastError;
+
+    DWORD dwcch = (fileForVerify.length() + 1) * sizeof(TCHAR);
+    LPWSTR pwszSourceFile = (wchar_t*)LocalAlloc(LMEM_FIXED, dwcch);
+    ZeroMemory(pwszSourceFile, dwcch);
+    fileForVerify.toWCharArray(pwszSourceFile);
+
+    *logString = fileForVerify;
+    QString message = QString("");
 
     // Initialize the WINTRUST_FILE_INFO structure.
 
@@ -158,10 +163,17 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(LPCWSTR pwszSourceFi
         "Yes" when asked to install and run the signed
         subject.
         */
+
         success = true;
-        wprintf_s(L"The file \"%s\" is signed and the signature "
-            L"was verified.\n",
-            pwszSourceFile);
+
+        //wprintf_s(L"The file \"%s\" is signed and the signature "
+        //    L"was verified.\n",
+        //    pwszSourceFile);
+
+        message = QString(
+                    "The file is signed and the signature "
+                    "was verified.");
+
         break;
 
     case TRUST_E_NOSIGNATURE:
@@ -175,16 +187,29 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(LPCWSTR pwszSourceFi
             TRUST_E_PROVIDER_UNKNOWN == dwLastError)
         {
             // The file was not signed.
-            wprintf_s(L"The file \"%s\" is not signed.\n",
-                pwszSourceFile);
+
+            //wprintf_s(L"The file \"%s\" is not signed.\n",
+            //    pwszSourceFile);
+
+            message = QString(
+                        "The file is not signed."
+                        );
+
         }
         else
         {
+
             // The signature was not valid or there was an error
             // opening the file.
-            wprintf_s(L"An unknown error occurred trying to "
-                L"verify the signature of the \"%s\" file.\n",
-                pwszSourceFile);
+
+            //wprintf_s(L"An unknown error occurred trying to "
+            //    L"verify the signature of the \"%s\" file.\n",
+            //    pwszSourceFile);
+
+            message = QString(
+                "An unknown error occurred trying to "
+                "verify the signature of the file.");
+
         }
 
         break;
@@ -192,14 +217,26 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(LPCWSTR pwszSourceFi
     case TRUST_E_EXPLICIT_DISTRUST:
         // The hash that represents the subject or the publisher
         // is not allowed by the admin or user.
-        wprintf_s(L"The signature is present, but specifically "
-            L"disallowed.\n");
+
+        //wprintf_s(L"The signature is present, but specifically "
+        //    L"disallowed.\n");
+
+        message = QString(
+                    "The signature is present, but specifically "
+                    "disallowed.");
         break;
 
     case TRUST_E_SUBJECT_NOT_TRUSTED:
+
         // The user clicked "No" when asked to install and run.
-        wprintf_s(L"The signature is present, but not "
-            L"trusted.\n");
+        //wprintf_s(L"The signature is present, but not "
+        //    L"trusted.\n");
+
+        message = QString(
+                    "The signature in file is present, but not "
+                    "trusted."
+                    );
+
         break;
 
     case CRYPT_E_SECURITY_SETTINGS:
@@ -209,21 +246,47 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(LPCWSTR pwszSourceFi
         admin policy has disabled user trust. No signature,
         publisher or time stamp errors.
         */
+
+        /*
         wprintf_s(L"CRYPT_E_SECURITY_SETTINGS - The hash "
             L"representing the subject or the publisher wasn't "
             L"explicitly trusted by the admin and admin policy "
             L"has disabled user trust. No signature, publisher "
             L"or timestamp errors.\n");
+        */
+
+
+        message = QString(
+                    "The hash "
+                    "representing the subject or the publisher wasn't "
+                    "explicitly trusted by the admin and admin policy "
+                    "has disabled user trust. No signature, publisher "
+                    "or timestamp errors."
+                    );
+
         break;
 
     default:
+
         // The UI was disabled in dwUIChoice or the admin policy
         // has disabled user trust. lStatus contains the
         // publisher or time stamp chain error.
-        wprintf_s(L"Error is: 0x%x.\n",
-            lStatus);
+
+        //wprintf_s(L"Error is: 0x%x.\n",
+        //    lStatus);
+
+        TCHAR pwszErrorMessage[256];
+        StringCbPrintf(pwszErrorMessage, 256, TEXT("Error while verifying the signature: 0x%x."), lStatus);
+
+        message = QString::fromWCharArray(pwszErrorMessage);
+
         break;
     }
+
+    logString->append(" - ");
+    logString->append(message);
+
+    LocalFree(pwszSourceFile);
 
     return success;
 }

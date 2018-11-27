@@ -100,14 +100,12 @@ void MainWindow::choosePathToScreenShots()
 void MainWindow::launch()
 {
 
+    ui->LaunchPushButton->setEnabled(false);
     ui->pathToExeFilesLineEdit->setEnabled(false);
     ui->pathToExeFilesToolButton->setEnabled(false);
     ui->commandLineArgumentsLineEdit->setEnabled(false);
     ui->pathToScreenShotsLineEdit->setEnabled(false);
-    ui->LaunchPushButton->setEnabled(true);
     ui->pathToScreenShotsToolButton->setEnabled(false);
-
-    ui->LaunchPushButton->setEnabled(false);
 
     if(ui->pathToExeFilesLineEdit->text().isNull() || ui->pathToExeFilesLineEdit->text().isEmpty()) {
         QMessageBox::critical(this, tr(""), tr("Choose the directory."), QMessageBox::Cancel);
