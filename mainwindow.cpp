@@ -97,41 +97,53 @@ void MainWindow::choosePathToScreenShots()
 
 }
 
+void MainWindow::setGuiEnabled(bool enable)
+{
+    ui->pathToExeFilesLineEdit->setEnabled(enable);
+    ui->pathToExeFilesToolButton->setEnabled(enable);
+    ui->commandLineArgumentsLineEdit->setEnabled(enable);
+    ui->pathToScreenShotsLineEdit->setEnabled(enable);
+    ui->pathToScreenShotsToolButton->setEnabled(enable);
+}
+
 void MainWindow::launch()
 {
 
     ui->LaunchPushButton->setEnabled(false);
-    ui->pathToExeFilesLineEdit->setEnabled(false);
-    ui->pathToExeFilesToolButton->setEnabled(false);
-    ui->commandLineArgumentsLineEdit->setEnabled(false);
-    ui->pathToScreenShotsLineEdit->setEnabled(false);
-    ui->pathToScreenShotsToolButton->setEnabled(false);
+    setGuiEnabled(false);
 
-    if(ui->pathToExeFilesLineEdit->text().isNull() || ui->pathToExeFilesLineEdit->text().isEmpty()) {
-        QMessageBox::critical(this, tr(""), tr("Choose the directory."), QMessageBox::Cancel);
-        return;
+    try {
+        
+        if(ui->pathToExeFilesLineEdit->text().isNull() || ui->pathToExeFilesLineEdit->text().isEmpty()) {
+            throw new QString(tr("Choose the directory."));
+        }
+        QDir dir(ui->pathToExeFilesLineEdit->text());
+        if(!dir.exists()) {
+            throw new QString(tr("Directory doesn't exists."));
+        }
+
+        processesAtStart.clear();
+        processesAtStart = getProcessesList();
+
+        filesList.clear();
+        filesList = getFilesListToLaunch();
+        if(filesList.count() < 1) {
+            throw new QString(tr("There are not files to launch."));
+        }
+
+        verifier = new VerifyEmbeddedSignatureThread();
+        verifier->setFilesForVerify(&filesList);
+        QObject::connect(verifier, SIGNAL(done(bool, QStringList)), this, SLOT(verifyBeforeLaunch(bool, QStringList)));
+        verifier->start();
+        
+    } catch(QString *exception) {
+        
+        QMessageBox::critical(this, tr("Critical Error"), *exception, QMessageBox::Cancel);
+        delete exception;
+        ui->LaunchPushButton->setEnabled(true);
+        setGuiEnabled(true);
+        
     }
-    QDir dir(ui->pathToExeFilesLineEdit->text());
-    if(!dir.exists()) {
-        QMessageBox::critical(this, tr(""), tr("Directory doesn't exists."), QMessageBox::Cancel);
-        return;
-    }
-
-    processesAtStart.clear();
-    processesAtStart = getProcessesList();
-
-    filesList.clear();
-    filesList = getFilesListToLaunch();
-    if(filesList.count() < 1) {
-        ui->resultTextEdit->append("There are not files to launch.");
-        return;
-    }
-
-    verifier = new VerifyEmbeddedSignatureThread();
-    verifier->setFilesForVerify(&filesList);
-    QObject::connect(verifier, SIGNAL(done(bool, QStringList)), this, SLOT(verifyBeforeLaunch(bool, QStringList)));
-    verifier->start();
-
 }
 
 void MainWindow::verifyBeforeLaunch(bool ok, QStringList badFiles)
@@ -144,15 +156,11 @@ void MainWindow::verifyBeforeLaunch(bool ok, QStringList badFiles)
     }
 
     if(!ok) {
-
-        ui->pathToExeFilesLineEdit->setEnabled(true);
-        ui->pathToExeFilesToolButton->setEnabled(true);
-        ui->commandLineArgumentsLineEdit->setEnabled(true);
-        ui->pathToScreenShotsLineEdit->setEnabled(true);
-        ui->pathToScreenShotsToolButton->setEnabled(true);
+        
+        setGuiEnabled(true);
         ui->LaunchPushButton->setEnabled(true);
         ui->NextLaunchPushButton->setEnabled(false);
-
+        
     } else {
 
         currentFile = -1;
@@ -196,11 +204,7 @@ void MainWindow::StartNextPE()
     }
 
     if (++currentFile >= filesList.count()) {
-        ui->pathToExeFilesLineEdit->setEnabled(true);
-        ui->pathToExeFilesToolButton->setEnabled(true);
-        ui->commandLineArgumentsLineEdit->setEnabled(true);
-        ui->pathToScreenShotsLineEdit->setEnabled(true);
-        ui->pathToScreenShotsToolButton->setEnabled(true);
+        setGuiEnabled(true);
         ui->LaunchPushButton->setEnabled(true);
         ui->NextLaunchPushButton->setEnabled(false);
         return;

@@ -23,6 +23,7 @@ public:
     void interrupt();
 
 public slots:
+    void setGuiEnabled(bool enable);
     void launch();
     void verifyBeforeLaunch(bool ok, QStringList badFiles);
     void nextLaunch();
