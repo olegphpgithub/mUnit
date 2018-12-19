@@ -24,3 +24,5 @@ HEADERS  += mainwindow.h \
     VerifyEmbeddedSignatureThread.h
 
 FORMS    += mainwindow.ui
+
+RC_FILE = mUnit.rc
