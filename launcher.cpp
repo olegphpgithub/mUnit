@@ -1,5 +1,6 @@
 #include "Launcher.h"
 #include "mainwindow.h"
+#include "ProcessUtil.h"
 
 
 #include <QtCore>
@@ -54,7 +55,7 @@ void Launcher::interrupt()
     int attempt = 3;
     do {
 
-        processesAtWork = getProcessesList();
+        processesAtWork = ProcessUtil::getProcessesList();
         report = QString("");
 
         if(processesAtWork.contains(MainWindow::currentDwProcessId)) {
@@ -151,41 +152,6 @@ void Launcher::interrupt()
     }
 
     // ----- terminate processes -----
-
-}
-
-
-QMap<int, QString> Launcher::getProcessesList()
-{
-
-    QMap<int, QString> processesMap;
-
-    WTS_PROCESS_INFO *pWPIs = NULL;
-    DWORD dwProcCount = 0;
-    if (WTSEnumerateProcesses(WTS_CURRENT_SERVER_HANDLE, NULL, 1, &pWPIs, &dwProcCount))
-    {
-        for (DWORD i = 0; i < dwProcCount; i++) {
-
-            QString processName(QString::fromWCharArray(pWPIs[i].pProcessName));
-
-            if(processName.isEmpty() || processName.isNull()) {
-                continue;
-            }
-
-            int processId = pWPIs[i].ProcessId;
-
-            if(processId < 1) {
-                continue;
-            }
-
-            processesMap.insert(pWPIs[i].ProcessId, processName);
-
-
-
-        }
-    }
-
-    return processesMap;
 
 }
 

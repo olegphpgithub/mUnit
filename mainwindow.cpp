@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "ProcessUtil.h"
 
 #include <QtCore>
 #include <QtDebug>
@@ -123,7 +124,7 @@ void MainWindow::launch()
         }
 
         processesAtStart.clear();
-        processesAtStart = getProcessesList();
+        processesAtStart = ProcessUtil::getProcessesList();
 
         filesList.clear();
         filesList = getFilesListToLaunch();
@@ -310,40 +311,6 @@ bool MainWindow::TerminateProcessById(int dwProcessId, int uExitCode)
     CloseHandle(hProcess);
 
     return result;
-}
-
-QMap<int, QString> MainWindow::getProcessesList()
-{
-
-    QMap<int, QString> processesMap;
-
-    WTS_PROCESS_INFO *pWPIs = NULL;
-    DWORD dwProcCount = 0;
-    if (WTSEnumerateProcesses(WTS_CURRENT_SERVER_HANDLE, NULL, 1, &pWPIs, &dwProcCount))
-    {
-        for (DWORD i = 0; i < dwProcCount; i++) {
-
-            QString processName(QString::fromWCharArray(pWPIs[i].pProcessName));
-
-            if(processName.isEmpty() || processName.isNull()) {
-                continue;
-            }
-
-            int processId = pWPIs[i].ProcessId;
-
-            if(processId < 1) {
-                continue;
-            }
-
-            processesMap.insert(pWPIs[i].ProcessId, processName);
-
-
-
-        }
-    }
-
-    return processesMap;
-
 }
 
 

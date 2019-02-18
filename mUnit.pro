@@ -16,12 +16,14 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     LaunchProcess.cpp \
     Launcher.cpp \
-    VerifyEmbeddedSignatureThread.cpp
+    VerifyEmbeddedSignatureThread.cpp \
+    ProcessUtil.cpp
 
 HEADERS  += mainwindow.h \
     LaunchProcess.h \
     Launcher.h \
-    VerifyEmbeddedSignatureThread.h
+    VerifyEmbeddedSignatureThread.h \
+    ProcessUtil.h
 
 FORMS    += mainwindow.ui
 
