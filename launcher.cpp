@@ -68,12 +68,14 @@ void Launcher::interrupt()
                 emit submitLog(report);
                 break;
             } else {
-                report = report.arg("Failure to terminate process. Pause 5 seconds...");
+                report = report.arg("Failure to terminate process. Try in 5 seconds...");
             }
         } else {
-            report = QString("Parent process %1 was not found. Pause 5 seconds...");
+            report = QString("%1 was not found. Try in 5 seconds...");
             MainWindow::filesList;
-            report = report.arg(currentFile);
+            QFileInfo fileInfo(currentFile);
+            QString fileName(fileInfo.fileName());
+            report = report.arg(fileName);
         }
 
         emit submitLog(report);

@@ -244,7 +244,9 @@ void MainWindow::StartNextPE()
 
     if (ok) {
         QString report(tr("%1 - Started successfully."));
-        report = report.arg(proc);
+        QFileInfo fileInfo(proc);
+        QString fileName(fileInfo.fileName());
+        report = report.arg(fileName);
         ui->resultTextEdit->append(report);
         currentDwProcessId = processInfo.dwProcessId;
         lctot++;
