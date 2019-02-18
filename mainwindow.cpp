@@ -167,7 +167,6 @@ void MainWindow::verifyBeforeLaunch(bool ok, QStringList badFiles)
         lctot = lcsuc = lcerr = 0;
         mtimer = NULL;
 
-        updateStatusBar();
         StartNextPE();
 
     }
@@ -194,8 +193,6 @@ void MainWindow::StartNextPE()
 {
 
     preLaunchEvent();
-
-    updateStatusBar();
 
     if(mtimer != NULL) {
         QObject::disconnect(mtimer, SIGNAL(comingToAnEnd()), this, SLOT(doNotHaveMuchTime()));
@@ -290,143 +287,13 @@ void MainWindow::doNotHaveMuchTime()
 void MainWindow::timeoutExceeded()
 {
     Launcher *l = new Launcher();
-    l->setmw(this);
+    l->currentFile = filesList.at(currentFile);
+    l->pathToScreenShots = ui->pathToScreenShotsLineEdit->text();
+    l->terminateProcessByMask = ui->terminateProcessByMaskLineEdit->text();
     QObject::connect(l, SIGNAL(finished()), this, SLOT(StartNextPE()));
+    QObject::connect(l, SIGNAL(submitResult(bool)), this, SLOT(updateStatusBar(bool)));
+    QObject::connect(l, SIGNAL(submitLog(QString)), this, SLOT(log(QString)));
     l->start();
-}
-
-void MainWindow::interrupt()
-{
-
-    // +++++ ScreenShot +++++
-    QFileInfo fileInfo(filesList.at(currentFile));
-    fileInfo.baseName();
-
-    QPixmap originalPixmap;
-    QScreen *screen = QGuiApplication::primaryScreen();
-
-    originalPixmap = screen->grabWindow(0);
-
-    QString ScreenShotPathName = ui->pathToScreenShotsLineEdit->text();
-    ScreenShotPathName.append("\\");
-    ScreenShotPathName.append(fileInfo.baseName());
-    ScreenShotPathName.append(".png");
-
-    bool ok = originalPixmap.save(ScreenShotPathName, "png");
-    if(!ok) {
-        qDebug() << "Cannot save";
-
-    }
-    // ----- ScreenShot -----
-
-
-
-    // +++++ terminate processes +++++
-
-    QMap<int, QString> processesAtWork;
-    QString report;
-
-    int attempt = 3;
-    do {
-
-        processesAtWork = getProcessesList();
-        report = QString("");
-
-        if(processesAtWork.contains(currentDwProcessId)) {
-            report = QString("%1 - %2");
-            report = report.arg(processesAtWork.take(currentDwProcessId));
-            bool ok = TerminateProcessById(currentDwProcessId, 1);
-            if(ok) {
-                report = report.arg("Terminated successfully.");
-                lcsuc++;
-                break;
-            } else {
-                report = report.arg("Failure to terminate process. Pause 5 seconds...");
-                if(attempt == 1) {
-                    lcerr++;
-                }
-            }
-        } else {
-            report = QString("Parent process %1 was not found. Pause 5 seconds...");
-            report = report.arg(filesList.at(currentFile));
-            if(attempt == 1) {
-                lcerr++;
-            }
-        }
-
-        QThread::sleep(5);
-        attempt--;
-
-    } while(attempt > 0);
-
-    emit submitLog(report);
-
-    QMap<int, QString>::const_iterator i = processesAtWork.constBegin();
-    while (i != processesAtWork.constEnd()) {
-        
-        if(processesAtStart.contains(i.key())) {
-            i++;
-            continue;
-        }
-
-        if(processesAtStart.contains(currentDwProcessId)) {
-            i++;
-            continue;
-        }
-        
-        
-        /** +++++ Check process mask +++++ */
-        
-        if(
-            !(ui->terminateProcessByMaskLineEdit->text().isNull()
-            || ui->terminateProcessByMaskLineEdit->text().isEmpty())
-        )
-        {
-            
-            bool match = false;
-            
-            QString maskString = ui->terminateProcessByMaskLineEdit->text();
-            
-            QStringList maskStringList = maskString.split('|', QString::SkipEmptyParts);
-            
-            QStringList result;
-            foreach (const QString &str, maskStringList) {
-                qDebug() << str;
-                QRegExp rx(str);
-                rx.setPatternSyntax(QRegExp::Wildcard);
-                match = rx.exactMatch(i.value());
-                if(match) {
-                    break;
-                }
-            }
-            
-            if(!match) {
-                i++;
-                continue;
-            }
-            
-        }
-        
-        /** ----- Check process mask ----- */
-        
-
-        QString report("%1 - %2");
-        report = report.arg(i.value());
-
-        bool ok = TerminateProcessById(i.key(), 1);
-        if(ok) {
-            report = report.arg("Terminated successfully.");
-        } else {
-            report = report.arg("Failure to terminate process.");
-        }
-
-        emit submitLog(report);
-
-        i++;
-    }
-
-    // ----- terminate processes -----
-
 }
 
 
@@ -480,8 +347,13 @@ QMap<int, QString> MainWindow::getProcessesList()
 }
 
 
-void MainWindow::updateStatusBar()
+void MainWindow::updateStatusBar(bool ok)
 {
+    if(ok) {
+        lcsuc++;
+    } else {
+        lcerr++;
+    }
     QString statusBarMsg("Launch: %1, Success: %2, Error: %3");
     statusBarMsg = statusBarMsg.arg(lctot);
     statusBarMsg = statusBarMsg.arg(lcsuc);

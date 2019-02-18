@@ -21,7 +21,11 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void interrupt();
-
+    
+    static DWORD currentDwProcessId;
+    static QStringList filesList;
+    static QMap<int, QString> processesAtStart;
+    
 public slots:
     void setGuiEnabled(bool enable);
     void launch();
@@ -33,23 +37,23 @@ public slots:
     void choosePathToExeFiles();
     void choosePathToScreenShots();
     void StartNextPE();
+    void updateStatusBar(bool ok);
 
 private:
     Ui::MainWindow *ui;
-    QMap<int, QString> processesAtStart;
+    
     QMap<int, QString> getProcessesList();
     bool TerminateProcessById(int dwProcessId, int uExitCode);
-    QStringList filesList;
     QStringList getFilesListToLaunch();
     int currentFile;
     LaunchProcess *mtimer;
     VerifyEmbeddedSignatureThread *verifier;
     wchar_t *lpctsArgs;
     DWORD dwcArgs;
-    DWORD currentDwProcessId;
     int lctot, lcsuc, lcerr;
-    void updateStatusBar();
+    
     void preLaunchEvent();
+
 signals:
     void submitLog(QString);
 };

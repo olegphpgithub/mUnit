@@ -5,6 +5,10 @@
 
 #pragma comment(lib, "Advapi32.lib")
 
+DWORD MainWindow::currentDwProcessId;
+QStringList MainWindow::filesList;
+QMap<int, QString> MainWindow::processesAtStart;
+
 BOOL TerminateMyProcess(DWORD dwProcessId, UINT uExitCode)
 {
     DWORD dwDesiredAccess = PROCESS_TERMINATE;
