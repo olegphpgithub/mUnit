@@ -64,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     lpctsArgs = NULL;
     dwcArgs = 0;
-    dwCurrentProcessId = 0;
+    ProcessUtil::dwCurrentProcessId = 0;
 }
 
 MainWindow::~MainWindow()
@@ -273,7 +273,7 @@ void MainWindow::StartNextPE()
         QString fileName(fileInfo.fileName());
         report = report.arg(fileName);
         ui->resultTextEdit->append(report);
-        dwCurrentProcessId = processInfo.dwProcessId;
+        ProcessUtil::dwCurrentProcessId = processInfo.dwProcessId;
         lctot++;
     }
 

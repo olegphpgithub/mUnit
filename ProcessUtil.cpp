@@ -3,9 +3,6 @@
 #include <QString>
 #include <QtDebug>
 
-#include <Windows.h>
-#include <WtsApi32.h>
-
 #pragma comment(lib, "Wtsapi32.lib")
 
 ProcessUtil::ProcessUtil(QObject *parent) : QObject(parent)

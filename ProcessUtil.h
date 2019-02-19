@@ -1,6 +1,9 @@
 #ifndef PROCESSUTIL_H
 #define PROCESSUTIL_H
 
+#include <Windows.h>
+#include <WtsApi32.h>
+
 #include <QThread>
 
 class ProcessUtil : public QObject

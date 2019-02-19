@@ -1,8 +1,8 @@
 #include "mainwindow.h"
 #include <QApplication>
-#include "ProcessUtil.h"
-
 #include <Windows.h>
+
+#include "ProcessUtil.h"
 
 #pragma comment(lib, "Advapi32.lib")
 
