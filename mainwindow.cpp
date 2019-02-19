@@ -27,6 +27,13 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->pathToScreenShotsToolButton, SIGNAL(pressed()), this, SLOT(choosePathToScreenShots()));
     
     QObject::connect(
+                      ui->pathToScreenShotsLineEdit,
+                      SIGNAL(textChanged(QString)),
+                      this,
+                      SLOT(pathToScreenShotsLineEditTextChanged(QString))
+                    );
+    
+    QObject::connect(
                       ui->terminateProcessByMaskLineEdit,
                       SIGNAL(textChanged(QString)),
                       this,
@@ -103,6 +110,11 @@ void MainWindow::choosePathToScreenShots()
     }
     ui->pathToScreenShotsLineEdit->setFocus();
 
+}
+
+void MainWindow::pathToScreenShotsLineEditTextChanged(const QString text)
+{
+    ProcessUtil::pathToScreenShots = text;
 }
 
 void MainWindow::terminateProcessByMaskLineEditTextChanged(const QString text)
@@ -303,8 +315,6 @@ void MainWindow::timeoutExceeded()
 {
     Launcher *l = new Launcher();
     l->currentFile = filesList.at(currentFile);
-    l->pathToScreenShots = ui->pathToScreenShotsLineEdit->text();
-    //l->terminateProcessByMask = ui->terminateProcessByMaskLineEdit->text();
     QObject::connect(l, SIGNAL(finished()), this, SLOT(StartNextPE()));
     QObject::connect(l, SIGNAL(submitResult(bool)), this, SLOT(updateStatusBar(bool)));
     QObject::connect(l, SIGNAL(submitLog(QString)), this, SLOT(log(QString)));

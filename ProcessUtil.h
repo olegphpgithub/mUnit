@@ -11,6 +11,7 @@ public:
     ~ProcessUtil();
     static QMap<int, QString> getProcessesList();
     static bool TerminateProcessById(int dwProcessId, int uExitCode);
+    static QString pathToScreenShots;
     static QString terminateProcessByMask;
 };
 

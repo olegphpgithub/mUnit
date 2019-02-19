@@ -33,7 +33,7 @@ void Launcher::interrupt()
 
     originalPixmap = screen->grabWindow(0);
 
-    QString ScreenShotPathName = pathToScreenShots;
+    QString ScreenShotPathName = ProcessUtil::pathToScreenShots;
     ScreenShotPathName.append("\\");
     ScreenShotPathName.append(fileInfo.baseName());
     ScreenShotPathName.append(".png");

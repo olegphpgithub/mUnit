@@ -9,7 +9,9 @@
 DWORD MainWindow::currentDwProcessId;
 QStringList MainWindow::filesList;
 QMap<int, QString> MainWindow::processesAtStart;
+QString ProcessUtil::pathToScreenShots;
 QString ProcessUtil::terminateProcessByMask;
+
 
 BOOL gIsWinXP()
 {

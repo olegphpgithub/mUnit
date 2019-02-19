@@ -15,7 +15,6 @@ public:
     bool TerminateProcessById(int dwProcessId, int uExitCode);
     MainWindow *mw;
     QString currentFile;
-    QString pathToScreenShots;
 signals:
     void submitLog(QString);
     void submitResult(bool);

@@ -38,6 +38,7 @@ public slots:
     void choosePathToScreenShots();
     void StartNextPE();
     void updateStatusBar(bool ok);
+    void pathToScreenShotsLineEditTextChanged(const QString text);
     void terminateProcessByMaskLineEditTextChanged(const QString text);
 
 private:
