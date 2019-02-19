@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include <QApplication>
+#include "ProcessUtil.h"
 
 #include <Windows.h>
 
@@ -8,21 +9,7 @@
 DWORD MainWindow::currentDwProcessId;
 QStringList MainWindow::filesList;
 QMap<int, QString> MainWindow::processesAtStart;
-
-BOOL TerminateMyProcess(DWORD dwProcessId, UINT uExitCode)
-{
-    DWORD dwDesiredAccess = PROCESS_TERMINATE;
-    BOOL  bInheritHandle = FALSE;
-    HANDLE hProcess = OpenProcess(dwDesiredAccess, bInheritHandle, dwProcessId);
-    if (hProcess == NULL)
-        return FALSE;
-
-    BOOL result = TerminateProcess(hProcess, uExitCode);
-
-    CloseHandle(hProcess);
-
-    return result;
-}
+QString ProcessUtil::terminateProcessByMask;
 
 BOOL gIsWinXP()
 {

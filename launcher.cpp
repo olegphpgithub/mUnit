@@ -106,16 +106,14 @@ void Launcher::interrupt()
         /** +++++ Check process mask +++++ */
         
         if(
-            !(terminateProcessByMask.isNull()
-            || terminateProcessByMask.isEmpty())
+            !(ProcessUtil::terminateProcessByMask.isNull()
+            || ProcessUtil::terminateProcessByMask.isEmpty())
         )
         {
             
             bool match = false;
             
-            QString maskString = terminateProcessByMask;
-            
-            QStringList maskStringList = maskString.split('|', QString::SkipEmptyParts);
+            QStringList maskStringList = ProcessUtil::terminateProcessByMask.split('|', QString::SkipEmptyParts);
             
             QStringList result;
             foreach (const QString &str, maskStringList) {

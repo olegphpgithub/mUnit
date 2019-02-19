@@ -16,7 +16,6 @@ public:
     MainWindow *mw;
     QString currentFile;
     QString pathToScreenShots;
-    QString terminateProcessByMask;
 signals:
     void submitLog(QString);
     void submitResult(bool);

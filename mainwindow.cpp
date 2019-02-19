@@ -25,6 +25,13 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->NextLaunchPushButton, SIGNAL(pressed()), this, SLOT(nextLaunch()));
     QObject::connect(ui->pathToExeFilesToolButton, SIGNAL(pressed()), this, SLOT(choosePathToExeFiles()));
     QObject::connect(ui->pathToScreenShotsToolButton, SIGNAL(pressed()), this, SLOT(choosePathToScreenShots()));
+    
+    QObject::connect(
+                      ui->terminateProcessByMaskLineEdit,
+                      SIGNAL(textChanged(QString)),
+                      this,
+                      SLOT(terminateProcessByMaskLineEditTextChanged(QString))
+                    );
 
     QSettings settings;
 
@@ -96,6 +103,11 @@ void MainWindow::choosePathToScreenShots()
     }
     ui->pathToScreenShotsLineEdit->setFocus();
 
+}
+
+void MainWindow::terminateProcessByMaskLineEditTextChanged(const QString text)
+{
+    ProcessUtil::terminateProcessByMask = text;
 }
 
 void MainWindow::setGuiEnabled(bool enable)
@@ -292,7 +304,7 @@ void MainWindow::timeoutExceeded()
     Launcher *l = new Launcher();
     l->currentFile = filesList.at(currentFile);
     l->pathToScreenShots = ui->pathToScreenShotsLineEdit->text();
-    l->terminateProcessByMask = ui->terminateProcessByMaskLineEdit->text();
+    //l->terminateProcessByMask = ui->terminateProcessByMaskLineEdit->text();
     QObject::connect(l, SIGNAL(finished()), this, SLOT(StartNextPE()));
     QObject::connect(l, SIGNAL(submitResult(bool)), this, SLOT(updateStatusBar(bool)));
     QObject::connect(l, SIGNAL(submitLog(QString)), this, SLOT(log(QString)));

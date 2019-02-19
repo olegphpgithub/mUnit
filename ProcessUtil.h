@@ -11,6 +11,7 @@ public:
     ~ProcessUtil();
     static QMap<int, QString> getProcessesList();
     static bool TerminateProcessById(int dwProcessId, int uExitCode);
+    static QString terminateProcessByMask;
 };
 
 #endif // PROCESSUTIL_H
