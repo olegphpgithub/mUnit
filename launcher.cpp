@@ -25,7 +25,7 @@ void Launcher::interrupt()
 {
 
     // +++++ ScreenShot +++++
-    QFileInfo fileInfo(currentFile);
+    QFileInfo fileInfo(ProcessUtil::filesList.at(ProcessUtil::currentFile));
     fileInfo.baseName();
 
     QPixmap originalPixmap;
@@ -72,8 +72,7 @@ void Launcher::interrupt()
             }
         } else {
             report = QString("%1 was not found. Try in 5 seconds...");
-            MainWindow::filesList;
-            QFileInfo fileInfo(currentFile);
+            QFileInfo fileInfo(ProcessUtil::filesList.at(ProcessUtil::currentFile));
             QString fileName(fileInfo.fileName());
             report = report.arg(fileName);
         }

@@ -23,7 +23,6 @@ public:
     void interrupt();
     
     static DWORD currentDwProcessId;
-    static QStringList filesList;
     static QMap<int, QString> processesAtStart;
     
 public slots:
@@ -45,7 +44,6 @@ private:
     Ui::MainWindow *ui;
     
     QStringList getFilesListToLaunch();
-    int currentFile;
     LaunchProcess *mtimer;
     VerifyEmbeddedSignatureThread *verifier;
     wchar_t *lpctsArgs;

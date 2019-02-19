@@ -7,10 +7,11 @@
 #pragma comment(lib, "Advapi32.lib")
 
 DWORD MainWindow::currentDwProcessId;
-QStringList MainWindow::filesList;
+QStringList ProcessUtil::filesList;
 QMap<int, QString> MainWindow::processesAtStart;
 QString ProcessUtil::pathToScreenShots;
 QString ProcessUtil::terminateProcessByMask;
+int ProcessUtil::currentFile;
 
 
 BOOL gIsWinXP()

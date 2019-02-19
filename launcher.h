@@ -14,7 +14,6 @@ public:
     void interrupt();
     bool TerminateProcessById(int dwProcessId, int uExitCode);
     MainWindow *mw;
-    QString currentFile;
 signals:
     void submitLog(QString);
     void submitResult(bool);

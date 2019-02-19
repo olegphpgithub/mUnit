@@ -150,14 +150,14 @@ void MainWindow::launch()
         processesAtStart.clear();
         processesAtStart = ProcessUtil::getProcessesList();
 
-        filesList.clear();
-        filesList = getFilesListToLaunch();
-        if(filesList.count() < 1) {
+        ProcessUtil::filesList.clear();
+        ProcessUtil::filesList = getFilesListToLaunch();
+        if(ProcessUtil::filesList.count() < 1) {
             throw new QString(tr("There are not files to launch."));
         }
 
         verifier = new VerifyEmbeddedSignatureThread();
-        verifier->setFilesForVerify(&filesList);
+        verifier->setFilesForVerify(&ProcessUtil::filesList);
         QObject::connect(verifier, SIGNAL(done(bool, QStringList)), this, SLOT(verifyBeforeLaunch(bool, QStringList)));
         verifier->start();
         
@@ -188,8 +188,9 @@ void MainWindow::verifyBeforeLaunch(bool ok, QStringList badFiles)
         
     } else {
 
-        currentFile = -1;
+        ProcessUtil::currentFile = -1;
         lctot = lcsuc = lcerr = 0;
+        ui->statusBar->showMessage(QString(""), 0);
         mtimer = NULL;
 
         StartNextPE();
@@ -225,7 +226,7 @@ void MainWindow::StartNextPE()
         mtimer->deleteLater();
     }
 
-    if (++currentFile >= filesList.count()) {
+    if (++ProcessUtil::currentFile >= ProcessUtil::filesList.count()) {
         setGuiEnabled(true);
         ui->LaunchPushButton->setEnabled(true);
         ui->NextLaunchPushButton->setEnabled(false);
@@ -233,7 +234,7 @@ void MainWindow::StartNextPE()
     }
 
     QString proc;
-    proc = filesList.at(currentFile);
+    proc = ProcessUtil::filesList.at(ProcessUtil::currentFile);
 
     wchar_t lpcwCommand[_MAX_PATH];
 
@@ -314,7 +315,6 @@ void MainWindow::doNotHaveMuchTime()
 void MainWindow::timeoutExceeded()
 {
     Launcher *l = new Launcher();
-    l->currentFile = filesList.at(currentFile);
     QObject::connect(l, SIGNAL(finished()), this, SLOT(StartNextPE()));
     QObject::connect(l, SIGNAL(submitResult(bool)), this, SLOT(updateStatusBar(bool)));
     QObject::connect(l, SIGNAL(submitLog(QString)), this, SLOT(log(QString)));
