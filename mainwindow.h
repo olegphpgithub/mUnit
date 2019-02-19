@@ -21,7 +21,6 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void interrupt();
-    static QMap<int, QString> processesAtStart;
     
 public slots:
     void setGuiEnabled(bool enable);

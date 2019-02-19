@@ -16,6 +16,7 @@ public:
     static bool TerminateProcessById(int dwProcessId, int uExitCode);
     static QString pathToScreenShots;
     static QString terminateProcessByMask;
+    static QMap<int, QString> processesAtStart;
     static DWORD dwCurrentProcessId;
     static int currentFile;
     static QStringList filesList;

@@ -8,7 +8,7 @@
 
 DWORD ProcessUtil::dwCurrentProcessId;
 QStringList ProcessUtil::filesList;
-QMap<int, QString> MainWindow::processesAtStart;
+QMap<int, QString> ProcessUtil::processesAtStart;
 QString ProcessUtil::pathToScreenShots;
 QString ProcessUtil::terminateProcessByMask;
 int ProcessUtil::currentFile;

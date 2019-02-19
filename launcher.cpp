@@ -91,12 +91,12 @@ void Launcher::interrupt()
     QMap<int, QString>::const_iterator i = processesAtWork.constBegin();
     while (i != processesAtWork.constEnd()) {
         
-        if(MainWindow::processesAtStart.contains(i.key())) {
+        if(ProcessUtil::processesAtStart.contains(i.key())) {
             i++;
             continue;
         }
 
-        if(MainWindow::processesAtStart.contains(ProcessUtil::dwCurrentProcessId)) {
+        if(ProcessUtil::processesAtStart.contains(ProcessUtil::dwCurrentProcessId)) {
             i++;
             continue;
         }

@@ -147,8 +147,8 @@ void MainWindow::launch()
             throw new QString(tr("Directory doesn't exists."));
         }
 
-        processesAtStart.clear();
-        processesAtStart = ProcessUtil::getProcessesList();
+        ProcessUtil::processesAtStart.clear();
+        ProcessUtil::processesAtStart = ProcessUtil::getProcessesList();
 
         ProcessUtil::filesList.clear();
         ProcessUtil::filesList = getFilesListToLaunch();
