@@ -23,26 +23,40 @@ void Launcher::run()
 
 void Launcher::interrupt()
 {
+    QString report;
 
     // +++++ ScreenShot +++++
-    QFileInfo fileInfo(ProcessUtil::filesList.at(ProcessUtil::currentFile));
-    fileInfo.baseName();
 
-    QPixmap originalPixmap;
-    QScreen *screen = QGuiApplication::primaryScreen();
+    try {
+        
+        QFileInfo fileInfo(ProcessUtil::filesList.at(ProcessUtil::currentFile));
+        fileInfo.baseName();
 
-    originalPixmap = screen->grabWindow(0);
+        QPixmap originalPixmap;
+        QScreen *screen = QGuiApplication::primaryScreen();
 
-    QString ScreenShotPathName = ProcessUtil::pathToScreenShots;
-    ScreenShotPathName.append("\\");
-    ScreenShotPathName.append(fileInfo.baseName());
-    ScreenShotPathName.append(".png");
+        originalPixmap = screen->grabWindow(0);
 
-    bool ok = originalPixmap.save(ScreenShotPathName, "png");
-    if(!ok) {
-        qDebug() << "Cannot save";
+        if( !(QDir(ProcessUtil::pathToScreenShots).exists()) ) {
+            if( !(QDir().mkdir(ProcessUtil::pathToScreenShots)) ) {
+                throw QString("Could not create directory to save screenshot.");
+            }
+        }
 
+        QString ScreenShotPathName = ProcessUtil::pathToScreenShots;
+        ScreenShotPathName.append("\\");
+        ScreenShotPathName.append(fileInfo.baseName());
+        ScreenShotPathName.append(".png");
+
+        bool ok = originalPixmap.save(ScreenShotPathName, "png");
+        if(!ok) {
+            throw QString("Could not save screenshot.");
+        }
+        
+    } catch(QString message) {
+        emit submitLog(message);
     }
+    
     // ----- ScreenShot -----
 
 
@@ -50,7 +64,7 @@ void Launcher::interrupt()
     // +++++ terminate processes +++++
 
     QMap<int, QString> processesAtWork;
-    QString report;
+    
 
     int attempt = 3;
     do {
