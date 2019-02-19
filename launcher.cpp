@@ -61,7 +61,7 @@ void Launcher::interrupt()
         if(processesAtWork.contains(MainWindow::currentDwProcessId)) {
             report = QString("%1 - %2");
             report = report.arg(processesAtWork.take(MainWindow::currentDwProcessId));
-            bool ok = TerminateProcessById(MainWindow::currentDwProcessId, 1);
+            bool ok = ProcessUtil::TerminateProcessById(MainWindow::currentDwProcessId, 1);
             if(ok) {
                 report = report.arg("Terminated successfully.");
                 emit submitResult(true);
@@ -141,7 +141,7 @@ void Launcher::interrupt()
         QString report("%1 - %2");
         report = report.arg(i.value());
 
-        bool ok = TerminateProcessById(i.key(), 1);
+        bool ok = ProcessUtil::TerminateProcessById(i.key(), 1);
         if(ok) {
             report = report.arg("Terminated successfully.");
         } else {
@@ -157,18 +157,3 @@ void Launcher::interrupt()
 
 }
 
-
-bool Launcher::TerminateProcessById(int dwProcessId, int uExitCode)
-{
-    DWORD dwDesiredAccess = PROCESS_TERMINATE;
-    BOOL  bInheritHandle = FALSE;
-    HANDLE hProcess = OpenProcess(dwDesiredAccess, bInheritHandle, dwProcessId);
-    if (hProcess == NULL)
-        return FALSE;
-
-    bool result = TerminateProcess(hProcess, uExitCode);
-
-    CloseHandle(hProcess);
-
-    return result;
-}

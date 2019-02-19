@@ -42,7 +42,6 @@ public slots:
 private:
     Ui::MainWindow *ui;
     
-    bool TerminateProcessById(int dwProcessId, int uExitCode);
     QStringList getFilesListToLaunch();
     int currentFile;
     LaunchProcess *mtimer;

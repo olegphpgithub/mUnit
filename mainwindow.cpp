@@ -300,22 +300,6 @@ void MainWindow::timeoutExceeded()
 }
 
 
-bool MainWindow::TerminateProcessById(int dwProcessId, int uExitCode)
-{
-    DWORD dwDesiredAccess = PROCESS_TERMINATE;
-    BOOL  bInheritHandle = FALSE;
-    HANDLE hProcess = OpenProcess(dwDesiredAccess, bInheritHandle, dwProcessId);
-    if (hProcess == NULL)
-        return FALSE;
-
-    bool result = TerminateProcess(hProcess, uExitCode);
-
-    CloseHandle(hProcess);
-
-    return result;
-}
-
-
 void MainWindow::updateStatusBar(bool ok)
 {
     if(ok) {

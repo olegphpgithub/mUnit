@@ -10,6 +10,7 @@ public:
     explicit ProcessUtil(QObject *parent = 0);
     ~ProcessUtil();
     static QMap<int, QString> getProcessesList();
+    static bool TerminateProcessById(int dwProcessId, int uExitCode);
 };
 
 #endif // PROCESSUTIL_H
