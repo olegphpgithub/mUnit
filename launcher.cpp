@@ -58,10 +58,10 @@ void Launcher::interrupt()
         processesAtWork = ProcessUtil::getProcessesList();
         report = QString("");
 
-        if(processesAtWork.contains(MainWindow::currentDwProcessId)) {
+        if(processesAtWork.contains(MainWindow::dwCurrentProcessId)) {
             report = QString("%1 - %2");
-            report = report.arg(processesAtWork.take(MainWindow::currentDwProcessId));
-            bool ok = ProcessUtil::TerminateProcessById(MainWindow::currentDwProcessId, 1);
+            report = report.arg(processesAtWork.take(MainWindow::dwCurrentProcessId));
+            bool ok = ProcessUtil::TerminateProcessById(MainWindow::dwCurrentProcessId, 1);
             if(ok) {
                 report = report.arg("Terminated successfully.");
                 emit submitResult(true);
@@ -96,7 +96,7 @@ void Launcher::interrupt()
             continue;
         }
 
-        if(MainWindow::processesAtStart.contains(MainWindow::currentDwProcessId)) {
+        if(MainWindow::processesAtStart.contains(MainWindow::dwCurrentProcessId)) {
             i++;
             continue;
         }

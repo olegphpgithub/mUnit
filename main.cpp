@@ -6,7 +6,7 @@
 
 #pragma comment(lib, "Advapi32.lib")
 
-DWORD MainWindow::currentDwProcessId;
+DWORD ProcessUtil::dwCurrentProcessId;
 QStringList ProcessUtil::filesList;
 QMap<int, QString> MainWindow::processesAtStart;
 QString ProcessUtil::pathToScreenShots;

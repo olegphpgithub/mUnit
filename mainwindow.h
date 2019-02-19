@@ -21,8 +21,6 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void interrupt();
-    
-    static DWORD currentDwProcessId;
     static QMap<int, QString> processesAtStart;
     
 public slots:
