@@ -2,6 +2,7 @@
 
 #include <QString>
 #include <QtDebug>
+#include <QFileInfo>
 
 #include <windows.h>
 #include <strsafe.h>
@@ -66,8 +67,9 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(QString fileForVerif
     LPWSTR pwszSourceFile = (wchar_t*)LocalAlloc(LMEM_FIXED, dwcch);
     ZeroMemory(pwszSourceFile, dwcch);
     fileForVerify.toWCharArray(pwszSourceFile);
-
-    *logString = fileForVerify;
+    
+    QFileInfo fileInfo(fileForVerify);
+    *logString = fileInfo.baseName();
     QString message = QString("");
 
     // Initialize the WINTRUST_FILE_INFO structure.
@@ -166,10 +168,6 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(QString fileForVerif
 
         success = true;
 
-        //wprintf_s(L"The file \"%s\" is signed and the signature "
-        //    L"was verified.\n",
-        //    pwszSourceFile);
-
         message = QString(
                     "The file is signed and the signature "
                     "was verified.");
@@ -188,11 +186,8 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(QString fileForVerif
         {
             // The file was not signed.
 
-            //wprintf_s(L"The file \"%s\" is not signed.\n",
-            //    pwszSourceFile);
-
             message = QString(
-                        "The file is not signed."
+                        "The file was not signed."
                         );
 
         }
@@ -201,10 +196,6 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(QString fileForVerif
 
             // The signature was not valid or there was an error
             // opening the file.
-
-            //wprintf_s(L"An unknown error occurred trying to "
-            //    L"verify the signature of the \"%s\" file.\n",
-            //    pwszSourceFile);
 
             message = QString(
                 "An unknown error occurred trying to "
@@ -218,9 +209,6 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(QString fileForVerif
         // The hash that represents the subject or the publisher
         // is not allowed by the admin or user.
 
-        //wprintf_s(L"The signature is present, but specifically "
-        //    L"disallowed.\n");
-
         message = QString(
                     "The signature is present, but specifically "
                     "disallowed.");
@@ -229,8 +217,6 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(QString fileForVerif
     case TRUST_E_SUBJECT_NOT_TRUSTED:
 
         // The user clicked "No" when asked to install and run.
-        //wprintf_s(L"The signature is present, but not "
-        //    L"trusted.\n");
 
         message = QString(
                     "The signature in file is present, but not "
@@ -247,15 +233,6 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(QString fileForVerif
         publisher or time stamp errors.
         */
 
-        /*
-        wprintf_s(L"CRYPT_E_SECURITY_SETTINGS - The hash "
-            L"representing the subject or the publisher wasn't "
-            L"explicitly trusted by the admin and admin policy "
-            L"has disabled user trust. No signature, publisher "
-            L"or timestamp errors.\n");
-        */
-
-
         message = QString(
                     "The hash "
                     "representing the subject or the publisher wasn't "
@@ -271,9 +248,6 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(QString fileForVerif
         // The UI was disabled in dwUIChoice or the admin policy
         // has disabled user trust. lStatus contains the
         // publisher or time stamp chain error.
-
-        //wprintf_s(L"Error is: 0x%x.\n",
-        //    lStatus);
 
         TCHAR pwszErrorMessage[256];
         StringCbPrintf(pwszErrorMessage, 256, TEXT("Error while verifying the signature: 0x%x."), lStatus);
