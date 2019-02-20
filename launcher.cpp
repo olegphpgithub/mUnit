@@ -102,32 +102,31 @@ void Launcher::interrupt()
 
     } while(attempt > 0);
 
-    QMap<int, QString>::const_iterator i = processesAtWork.constBegin();
-    while (i != processesAtWork.constEnd()) {
-        
-        if(ProcessUtil::processesAtStart.contains(i.key())) {
-            i++;
-            continue;
-        }
+    // +++++ terminate new processes by mask +++++
 
-        if(ProcessUtil::processesAtStart.contains(ProcessUtil::dwCurrentProcessId)) {
-            i++;
-            continue;
-        }
-        
-        
-        /** +++++ Check process mask +++++ */
-        
-        if(
-            !(ProcessUtil::terminateProcessByMask.isNull()
-            || ProcessUtil::terminateProcessByMask.isEmpty())
-        )
-        {
-            
+    if(
+        !(ProcessUtil::terminateProcessByMask.isNull()
+        || ProcessUtil::terminateProcessByMask.isEmpty())
+    )
+    {
+
+        QMap<int, QString>::const_iterator i = processesAtWork.constBegin();
+        while (i != processesAtWork.constEnd()) {
+
+            if(ProcessUtil::processesAtStart.contains(i.key())) {
+                i++;
+                continue;
+            }
+
+            if(ProcessUtil::processesAtStart.contains(ProcessUtil::dwCurrentProcessId)) {
+                i++;
+                continue;
+            }
+
             bool match = false;
-            
+
             QStringList maskStringList = ProcessUtil::terminateProcessByMask.split('|', QString::SkipEmptyParts);
-            
+
             QStringList result;
             foreach (const QString &str, maskStringList) {
                 qDebug() << str;
@@ -138,31 +137,31 @@ void Launcher::interrupt()
                     break;
                 }
             }
-            
+
             if(!match) {
                 i++;
                 continue;
             }
-            
+
+            QString report("%1 - %2");
+            report = report.arg(i.value());
+
+            bool ok = ProcessUtil::TerminateProcessById(i.key(), 1);
+            if(ok) {
+                report = report.arg("Terminated successfully.");
+            } else {
+                report = report.arg("Failure to terminate process.");
+            }
+
+            emit submitLog(report);
+
         }
-        
-        /** ----- Check process mask ----- */
-        
-
-        QString report("%1 - %2");
-        report = report.arg(i.value());
-
-        bool ok = ProcessUtil::TerminateProcessById(i.key(), 1);
-        if(ok) {
-            report = report.arg("Terminated successfully.");
-        } else {
-            report = report.arg("Failure to terminate process.");
-        }
-
-        emit submitLog(report);
 
         i++;
+
     }
+
+    // ----- terminate new processes by mask -----
 
     // ----- terminate processes -----
 
