@@ -155,9 +155,9 @@ void Launcher::interrupt()
 
             emit submitLog(report);
 
-        }
+            i++;
 
-        i++;
+        }
 
     }
 

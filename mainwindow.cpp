@@ -55,7 +55,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->timeOutSpinBox->setValue(timeOut);
     
     QString terminateProcessByMask = settings.value("terminateProcessByMask").value<QString>();
-    if(terminateProcessByMask.isNull() || terminateProcessByMask.isEmpty()) {
+    if(terminateProcessByMask.isNull()) {
         terminateProcessByMask = QString("*.exe");
     }
     ui->terminateProcessByMaskLineEdit->setText(terminateProcessByMask);
