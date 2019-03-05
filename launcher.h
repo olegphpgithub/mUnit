@@ -12,6 +12,7 @@ public:
     explicit Launcher(QObject *parent = 0);
     void run();
     void interrupt();
+    void ClearRegistryKeys();
     bool TerminateProcessById(int dwProcessId, int uExitCode);
     MainWindow *mw;
 signals:
