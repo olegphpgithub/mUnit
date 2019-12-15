@@ -3,7 +3,7 @@
 
 #include <QThread>
 
-#include <windows.h>
+#include <Windows.h>
 
 class QStringList;
 
@@ -15,7 +15,7 @@ class VerifyEmbeddedSignatureThread : public QThread
     QStringList *filesForVerify;
     bool VerifyEmbeddedSignature(QString fileForVerify, QString *logString);
 public:
-    explicit VerifyEmbeddedSignatureThread(QObject *parent = 0);
+    explicit VerifyEmbeddedSignatureThread(QObject *parent = nullptr);
     ~VerifyEmbeddedSignatureThread();
     void setFilesForVerify(QStringList *pFilesForVerify);
 signals:

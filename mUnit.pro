@@ -13,6 +13,7 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
+    VerifyASProtectThread.cpp \
         mainwindow.cpp \
     LaunchProcess.cpp \
     Launcher.cpp \
@@ -22,6 +23,7 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h \
     LaunchProcess.h \
     Launcher.h \
+    VerifyASProtectThread.h \
     VerifyEmbeddedSignatureThread.h \
     ProcessUtil.h
 
