@@ -23,7 +23,13 @@ void VerifyASProtectThread::run()
 {
     success = true;
     QStringList logStringList;
-    emit done(success, logStringList);
+
+
+    if(success) {
+        logStringList.append(QString("All files were protected."));
+    }
+
+    emit done(success, logStringList, this);
 }
 
 

@@ -25,7 +25,7 @@ public:
 public slots:
     void setGuiEnabled(bool enable);
     void launch();
-    void verifyBeforeLaunch(bool ok, QStringList badFiles);
+    void verifyBeforeLaunch(bool ok, QStringList badFiles, QObject *verifier);
     void nextLaunch();
     void log(QString);
     void doNotHaveMuchTime();
@@ -42,11 +42,13 @@ private:
     
     QStringList getFilesListToLaunch();
     LaunchProcess *mtimer;
-    VerifyEmbeddedSignatureThread *verifier;
     wchar_t *lpctsArgs;
     DWORD dwcArgs;
     int lctot, lcsuc, lcerr;
-    
+    enum {
+        ASProtectVerification,
+        EmbeddedSignatureVerification
+    };
     void preLaunchEvent();
 
 signals:

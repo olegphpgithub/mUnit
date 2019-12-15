@@ -15,7 +15,7 @@ public:
     ~VerifyASProtectThread();
     void setFilesForVerify(QStringList *pFilesForVerify);
 signals:
-    void done(bool ok, QStringList badFiles);
+    void done(bool ok, QStringList badFiles, QObject* parent);
 };
 
 #endif // VERIFYASPROTECTTHREAD_H

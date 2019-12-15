@@ -13,6 +13,7 @@
 #pragma comment(lib, "Wtsapi32.lib")
 
 #include "LaunchProcess.h"
+#include "VerifyASProtectThread.h"
 #include "VerifyEmbeddedSignatureThread.h"
 #include "Launcher.h"
 
@@ -156,11 +157,8 @@ void MainWindow::launch()
             throw new QString(tr("There are not files to launch."));
         }
 
-        verifier = new VerifyEmbeddedSignatureThread();
-        verifier->setFilesForVerify(&ProcessUtil::filesList);
-        QObject::connect(verifier, SIGNAL(done(bool, QStringList)), this, SLOT(verifyBeforeLaunch(bool, QStringList)));
-        verifier->start();
-        
+        verifyBeforeLaunch(false, QStringList(), nullptr);
+
     } catch(QString *exception) {
         
         QMessageBox::critical(this, tr("Critical Error"), *exception, QMessageBox::Cancel);
@@ -171,31 +169,97 @@ void MainWindow::launch()
     }
 }
 
-void MainWindow::verifyBeforeLaunch(bool ok, QStringList badFiles)
+void MainWindow::verifyBeforeLaunch(bool ok, QStringList badFiles, QObject *parent)
 {
-    QObject::disconnect(verifier, SIGNAL(done(bool, QStringList)), this, SLOT(verifyBeforeLaunch(bool, QStringList)));
-    verifier->deleteLater();
 
-    foreach(const QString &badFile, badFiles) {
-        ui->resultTextEdit->append(badFile);
+    if(parent == nullptr) {
+        VerifyASProtectThread *verifyASProtectThread =
+                new VerifyASProtectThread();
+        verifyASProtectThread->setFilesForVerify(&ProcessUtil::filesList);
+        QObject::connect(verifyASProtectThread,
+                         SIGNAL(done(bool, QStringList, QObject*)),
+                         this,
+                         SLOT(verifyBeforeLaunch(bool, QStringList, QObject*))
+                         );
+        verifyASProtectThread->start();
+        return;
     }
 
-    if(!ok) {
-        
-        setGuiEnabled(true);
-        ui->LaunchPushButton->setEnabled(true);
-        ui->NextLaunchPushButton->setEnabled(false);
-        
-    } else {
+    try {
 
-        ProcessUtil::currentFile = -1;
-        lctot = lcsuc = lcerr = 0;
-        ui->statusBar->showMessage(QString(""), 0);
-        mtimer = NULL;
+        VerifyASProtectThread *verifyASProtectThread =
+                dynamic_cast<VerifyASProtectThread*>(parent);
 
-        StartNextPE();
+        if(verifyASProtectThread != nullptr) {
+
+            QObject::disconnect(verifyASProtectThread,
+                                SIGNAL(done(bool, QStringList, QObject*)),
+                                this,
+                                SLOT(verifyBeforeLaunch(bool, QStringList, QObject*))
+                                );
+            verifyASProtectThread->deleteLater();
+
+            foreach(const QString &badFile, badFiles) {
+                ui->resultTextEdit->append(badFile);
+            }
+
+            if(!ok) {
+                setGuiEnabled(true);
+                ui->LaunchPushButton->setEnabled(true);
+                ui->NextLaunchPushButton->setEnabled(false);
+            } else {
+                VerifyEmbeddedSignatureThread *verifier =
+                        new VerifyEmbeddedSignatureThread();
+                verifier->setFilesForVerify(&ProcessUtil::filesList);
+                QObject::connect(verifier,
+                                 SIGNAL(done(bool, QStringList, QObject*)),
+                                 this,
+                                 SLOT(verifyBeforeLaunch(bool, QStringList, QObject*))
+                                 );
+                verifier->start();
+            }
+            return;
+        }
+
+    } catch(const std::bad_cast&) {
 
     }
+
+    try {
+
+        VerifyEmbeddedSignatureThread *verifyEmbeddedSignatureThread =
+                dynamic_cast<VerifyEmbeddedSignatureThread*>(parent);
+        if(verifyEmbeddedSignatureThread != nullptr) {
+
+            QObject::disconnect(verifyEmbeddedSignatureThread,
+                                SIGNAL(done(bool, QStringList, QObject*)),
+                                this,
+                                SLOT(verifyBeforeLaunch(bool, QStringList, QObject*))
+                                );
+
+            verifyEmbeddedSignatureThread->deleteLater();
+
+            foreach(const QString &badFile, badFiles) {
+                ui->resultTextEdit->append(badFile);
+            }
+
+            if(!ok) {
+                setGuiEnabled(true);
+                ui->LaunchPushButton->setEnabled(true);
+                ui->NextLaunchPushButton->setEnabled(false);
+            } else {
+                ProcessUtil::currentFile = -1;
+                lctot = lcsuc = lcerr = 0;
+                ui->statusBar->showMessage(QString(""), 0);
+                mtimer = nullptr;
+                StartNextPE();
+            }
+        }
+
+    } catch(const std::bad_cast&) {
+
+    }
+
 }
 
 
