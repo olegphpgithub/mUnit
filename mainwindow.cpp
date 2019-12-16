@@ -204,20 +204,27 @@ void MainWindow::verifyBeforeLaunch(bool ok, QStringList badFiles, QObject *pare
             }
 
             if(!ok) {
-                setGuiEnabled(true);
-                ui->LaunchPushButton->setEnabled(true);
-                ui->NextLaunchPushButton->setEnabled(false);
-            } else {
-                VerifyEmbeddedSignatureThread *verifier =
-                        new VerifyEmbeddedSignatureThread();
-                verifier->setFilesForVerify(&ProcessUtil::filesList);
-                QObject::connect(verifier,
-                                 SIGNAL(done(bool, QStringList, QObject*)),
-                                 this,
-                                 SLOT(verifyBeforeLaunch(bool, QStringList, QObject*))
-                                 );
-                verifier->start();
+                int res = QMessageBox::warning(this,
+                                               QString("Warning"),
+                                               QString("ASProtect verification failed. Do you want to continue?"),
+                                               QMessageBox::Ok | QMessageBox::Cancel,
+                                               QMessageBox::Cancel);
+                if(res != QMessageBox::Ok) {
+                    setGuiEnabled(true);
+                    ui->LaunchPushButton->setEnabled(true);
+                    ui->NextLaunchPushButton->setEnabled(false);
+                    return;
+                }
             }
+            VerifyEmbeddedSignatureThread *verifier =
+                    new VerifyEmbeddedSignatureThread();
+            verifier->setFilesForVerify(&ProcessUtil::filesList);
+            QObject::connect(verifier,
+                             SIGNAL(done(bool, QStringList, QObject*)),
+                             this,
+                             SLOT(verifyBeforeLaunch(bool, QStringList, QObject*))
+                             );
+            verifier->start();
             return;
         }
 
@@ -244,16 +251,25 @@ void MainWindow::verifyBeforeLaunch(bool ok, QStringList badFiles, QObject *pare
             }
 
             if(!ok) {
-                setGuiEnabled(true);
-                ui->LaunchPushButton->setEnabled(true);
-                ui->NextLaunchPushButton->setEnabled(false);
-            } else {
-                ProcessUtil::currentFile = -1;
-                lctot = lcsuc = lcerr = 0;
-                ui->statusBar->showMessage(QString(""), 0);
-                mtimer = nullptr;
-                StartNextPE();
+                int res = QMessageBox::warning(this,
+                                               QString("Warning"),
+                                               QString("Signature verification failed. Do you want to continue?"),
+                                               QMessageBox::Ok | QMessageBox::Cancel,
+                                               QMessageBox::Cancel);
+                if(res != QMessageBox::Ok) {
+                    setGuiEnabled(true);
+                    ui->LaunchPushButton->setEnabled(true);
+                    ui->NextLaunchPushButton->setEnabled(false);
+                    return;
+                }
             }
+
+            ProcessUtil::currentFile = -1;
+            lctot = lcsuc = lcerr = 0;
+            ui->statusBar->showMessage(QString(""), 0);
+            mtimer = nullptr;
+            StartNextPE();
+
         }
 
     } catch(const std::bad_cast&) {
