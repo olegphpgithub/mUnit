@@ -48,7 +48,7 @@ void VerifyEmbeddedSignatureThread::run()
     }
 
     if(success) {
-        logStringList.append(QString("All files are signed and the signatures were verified."));
+        logStringList.append(QString("All files were signed and the signatures were verified."));
     }
 
     emit done(success, logStringList, this);
