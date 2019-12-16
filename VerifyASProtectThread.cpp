@@ -55,9 +55,12 @@ bool VerifyASProtectThread::VerifyASProtect(QString fileForVerify, QString *logS
     PIMAGE_DOS_HEADER dosHeader;
     PIMAGE_NT_HEADERS peHeader;
 
+    QFileInfo fileInfo(fileForVerify);
+    *logString = fileInfo.baseName();
+    logString->append(" - ");
+
     wchar_t lpFileName[_MAX_PATH];
     ZeroMemory(lpFileName, _MAX_PATH * sizeof(wchar_t));
-
     fileForVerify.toWCharArray(lpFileName);
 
     HANDLE hFile = CreateFileW(lpFileName,
@@ -114,6 +117,7 @@ bool VerifyASProtectThread::VerifyASProtect(QString fileForVerify, QString *logS
 
             if(peHeader->OptionalHeader.AddressOfEntryPoint == 0x1000) {
                 success = true;
+                logString->append("OK");
             } else {
                 logString->append("File was not protected");
             }
