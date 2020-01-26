@@ -1,0 +1,2 @@
+How to verify more than one signature.
+https://stackoverflow.com/questions/21547311/how-to-dual-sign-a-binary-with-authenticode
