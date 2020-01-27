@@ -32,3 +32,4 @@ moc_*.h
 *.exe
 
 showcerts/showcerts/obj/*
+showcerts/showcerts/bin/*
