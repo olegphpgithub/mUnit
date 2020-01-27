@@ -5,6 +5,7 @@
 #include <QFileInfo>
 
 #include <Windows.h>
+#include <VersionHelpers.h>
 #include <strsafe.h>
 #include <SoftPub.h>
 #include <WinTrust.h>
@@ -140,6 +141,8 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(QString fileForVerif
     // Set pFile.
     WinTrustData.pFile = &FileData;
 
+    bool canUseSignatureSettings = IsWindowsVersionOrGreater(6, 2, 0);
+
     // N.B. Use of this member is only supported on Windows 8 and Windows Server 2012 (and later)
     WINTRUST_SIGNATURE_SETTINGS signatureSettings;
     // Setup WINTRUST_SIGNATURE_SETTINGS to get the number of signatures in the file
@@ -150,7 +153,9 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(QString fileForVerif
     signatureSettings.dwVerifiedSigIndex = 0;
     signatureSettings.pCryptoPolicy = nullptr;
 
-    WinTrustData.pSignatureSettings = &signatureSettings;
+    if(canUseSignatureSettings) {
+        WinTrustData.pSignatureSettings = &signatureSettings;
+    }
 
     // WinVerifyTrust verifies signatures as specified by the GUID
     // and Wintrust_Data.
@@ -176,7 +181,11 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(QString fileForVerif
         "Yes" when asked to install and run the signed
         subject.
         */
-        if(signatureSettings.cSecondarySigs > 0) {
+
+        if(signatureSettings.cSecondarySigs > 0
+                || !canUseSignatureSettings
+        )
+        {
 
             success = true;
 
