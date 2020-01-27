@@ -4,10 +4,10 @@
 #include <QtDebug>
 #include <QFileInfo>
 
-#include <windows.h>
+#include <Windows.h>
 #include <strsafe.h>
-#include <Softpub.h>
-#include <wintrust.h>
+#include <SoftPub.h>
+#include <WinTrust.h>
 
 // Link with the Wintrust.lib file.
 #pragma comment (lib, "wintrust")
@@ -63,9 +63,7 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(QString fileForVerif
     LONG lStatus;
     DWORD dwLastError;
 
-    DWORD dwcch = (fileForVerify.length() + 1) * sizeof(TCHAR);
-    LPWSTR pwszSourceFile = (wchar_t*)LocalAlloc(LMEM_FIXED, dwcch);
-    ZeroMemory(pwszSourceFile, dwcch);
+    WCHAR pwszSourceFile[MAX_PATH] = { 0 };
     fileForVerify.toWCharArray(pwszSourceFile);
     
     QFileInfo fileInfo(fileForVerify);
@@ -78,8 +76,8 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(QString fileForVerif
     memset(&FileData, 0, sizeof(FileData));
     FileData.cbStruct = sizeof(WINTRUST_FILE_INFO);
     FileData.pcwszFilePath = pwszSourceFile;
-    FileData.hFile = NULL;
-    FileData.pgKnownSubject = NULL;
+    FileData.hFile = nullptr;
+    FileData.pgKnownSubject = nullptr;
 
     /*
     WVTPolicyGUID specifies the policy to apply on the file
@@ -111,10 +109,10 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(QString fileForVerif
     WinTrustData.cbStruct = sizeof(WinTrustData);
 
     // Use default code signing EKU.
-    WinTrustData.pPolicyCallbackData = NULL;
+    WinTrustData.pPolicyCallbackData = nullptr;
 
     // No data to pass to SIP.
-    WinTrustData.pSIPClientData = NULL;
+    WinTrustData.pSIPClientData = nullptr;
 
     // Disable WVT UI.
     WinTrustData.dwUIChoice = WTD_UI_NONE;
@@ -129,10 +127,10 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(QString fileForVerif
     WinTrustData.dwStateAction = WTD_STATEACTION_VERIFY;
 
     // Verification sets this value.
-    WinTrustData.hWVTStateData = NULL;
+    WinTrustData.hWVTStateData = nullptr;
 
     // Not used.
-    WinTrustData.pwszURLReference = NULL;
+    WinTrustData.pwszURLReference = nullptr;
 
     // This is not applicable if there is no UI because it changes
     // the UI to accommodate running applications instead of
@@ -142,12 +140,25 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(QString fileForVerif
     // Set pFile.
     WinTrustData.pFile = &FileData;
 
+    // N.B. Use of this member is only supported on Windows 8 and Windows Server 2012 (and later)
+    WINTRUST_SIGNATURE_SETTINGS signatureSettings;
+    // Setup WINTRUST_SIGNATURE_SETTINGS to get the number of signatures in the file
+    signatureSettings.cbStruct = sizeof(WINTRUST_SIGNATURE_SETTINGS);
+    signatureSettings.dwIndex = 0;
+    signatureSettings.dwFlags = WSS_GET_SECONDARY_SIG_COUNT;
+    signatureSettings.cSecondarySigs = 0;
+    signatureSettings.dwVerifiedSigIndex = 0;
+    signatureSettings.pCryptoPolicy = nullptr;
+
+    WinTrustData.pSignatureSettings = &signatureSettings;
+
     // WinVerifyTrust verifies signatures as specified by the GUID
     // and Wintrust_Data.
     lStatus = WinVerifyTrust(
-        NULL,
+        nullptr,
         &WVTPolicyGUID,
-        &WinTrustData);
+        &WinTrustData
+    );
 
     switch (lStatus)
     {
@@ -165,12 +176,22 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(QString fileForVerif
         "Yes" when asked to install and run the signed
         subject.
         */
+        if(signatureSettings.cSecondarySigs > 0) {
 
-        success = true;
+            success = true;
 
-        message = QString(
-                    "The file is signed and the signature "
-                    "was verified.");
+            message = QString(
+                "The file was signed "
+                "and the signature was verified."
+            );
+
+        } else {
+
+            success = false;
+
+            message = QString("The file does not have a secondary signature.");
+
+        }
 
         break;
 
@@ -198,7 +219,7 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(QString fileForVerif
             // opening the file.
 
             message = QString(
-                "An unknown error occurred trying to "
+                "An unknown error occurred while trying to "
                 "verify the signature of the file.");
 
         }
@@ -249,8 +270,8 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(QString fileForVerif
         // has disabled user trust. lStatus contains the
         // publisher or time stamp chain error.
 
-        TCHAR pwszErrorMessage[256];
-        StringCbPrintf(pwszErrorMessage, 256, TEXT("Error while verifying the signature: 0x%x."), lStatus);
+        WCHAR pwszErrorMessage[256];
+        StringCbPrintfW(pwszErrorMessage, 256, L"Error while verifying the signature: 0x%x.", lStatus);
 
         message = QString::fromWCharArray(pwszErrorMessage);
 
@@ -259,8 +280,6 @@ bool VerifyEmbeddedSignatureThread::VerifyEmbeddedSignature(QString fileForVerif
 
     logString->append(" - ");
     logString->append(message);
-
-    LocalFree(pwszSourceFile);
 
     return success;
 }
