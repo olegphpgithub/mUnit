@@ -104,6 +104,17 @@
        </layout>
       </item>
       <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <widget class="QCheckBox" name="findWindowCheckBox">
+          <property name="text">
+           <string>Find communication window</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
        <widget class="QLabel" name="TerminateProcessByMaskLabel">
         <property name="text">
          <string>Terminate process by mask (separator is '|'):</string>

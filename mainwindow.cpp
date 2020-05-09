@@ -394,11 +394,12 @@ void MainWindow::doNotHaveMuchTime()
 
 void MainWindow::timeoutExceeded()
 {
-    Launcher *l = new Launcher();
-    QObject::connect(l, SIGNAL(finished()), this, SLOT(StartNextPE()));
-    QObject::connect(l, SIGNAL(submitResult(bool)), this, SLOT(updateStatusBar(bool)));
-    QObject::connect(l, SIGNAL(submitLog(QString)), this, SLOT(log(QString)));
-    l->start();
+    Launcher *launcher = new Launcher();
+    launcher->findCommunicationWindow = ui->findWindowCheckBox->isChecked();
+    QObject::connect(launcher, SIGNAL(finished()), this, SLOT(StartNextPE()));
+    QObject::connect(launcher, SIGNAL(submitResult(bool)), this, SLOT(updateStatusBar(bool)));
+    QObject::connect(launcher, SIGNAL(submitLog(QString)), this, SLOT(log(QString)));
+    launcher->start();
 }
 
 

@@ -2,12 +2,10 @@
 #include "mainwindow.h"
 #include "ProcessUtil.h"
 
-
 #include <QtCore>
 #include <QtDebug>
 #include <QtWidgets>
 
-#include <Windows.h>
 #include <WtsApi32.h>
 #include <strsafe.h>
 
@@ -16,7 +14,7 @@
 
 Launcher::Launcher(QObject *parent) : QThread(parent)
 {
-
+    findCommunicationWindow = false;
 }
 
 void Launcher::run()
@@ -24,9 +22,38 @@ void Launcher::run()
     interrupt();
 }
 
+BOOL CALLBACK Launcher::FindWindowProc(HWND hwnd, LPARAM lParam)
+{
+    DWORD* lpdwDesiredProcessID = reinterpret_cast<DWORD*>(lParam);
+    DWORD processId;
+    GetWindowThreadProcessId(hwnd, &processId);
+    if (processId == *lpdwDesiredProcessID)
+    {
+        TCHAR className[100] = { 0 };
+        if (GetClassName(hwnd, className, 100))
+        {
+            if (_tcscmp(className, TEXT("#32770")) == 0)
+            {
+                WCHAR cname[1024] = { 0 };
+                HWND hwndCmd = GetDlgItem(hwnd, 1045);
+                if (hwndCmd)
+                {
+                    GetWindowText(hwndCmd, cname, 1024);
+                    if (_tcscmp(cname, TEXT("fus 3 ")) == 0)
+                    {
+                        return FALSE;
+                    }
+                }
+            }
+        }
+    }
+    return TRUE;
+}
+
 void Launcher::interrupt()
 {
     QString report;
+    bool result = true;
 
     // +++++ ScreenShot +++++
 
@@ -63,11 +90,23 @@ void Launcher::interrupt()
     // ----- ScreenShot -----
 
 
+    // +++++ Find communication window +++++
+
+    if (findCommunicationWindow)
+    {
+        BOOL bWinFound = ! EnumWindows(FindWindowProc, reinterpret_cast<LPARAM>(&ProcessUtil::dwCurrentProcessId));
+        if( ! bWinFound)
+        {
+            emit submitLog("Could not found communication window");
+            result = false;
+        }
+    }
+
+    // ----- Find communication window -----
 
     // +++++ terminate processes +++++
 
     QMap<int, QString> processesAtWork;
-    
 
     int attempt = 3;
     do {
@@ -81,7 +120,6 @@ void Launcher::interrupt()
             bool ok = ProcessUtil::TerminateProcessById(ProcessUtil::dwCurrentProcessId, 1);
             if(ok) {
                 report = report.arg("Terminated successfully.");
-                emit submitResult(true);
                 emit submitLog(report);
                 break;
             } else {
@@ -99,7 +137,7 @@ void Launcher::interrupt()
             QThread::sleep(5);
         }
         if(attempt == 1) {
-            emit submitResult(false);
+            result = false;
         }
         attempt--;
 
@@ -165,12 +203,12 @@ void Launcher::interrupt()
     }
 
     // ----- terminate new processes by mask -----
-    
-    
+
     // ----- terminate processes -----
-    
+
+    emit submitResult(result);
+
     ClearRegistryKeys();
-    
 }
 
 void Launcher::ClearRegistryKeys()

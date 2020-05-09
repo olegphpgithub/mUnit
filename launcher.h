@@ -3,6 +3,10 @@
 
 #include <QtCore>
 
+#include <tchar.h>
+#include <string.h>
+#include <Windows.h>
+
 class MainWindow;
 
 class Launcher : public QThread
@@ -11,10 +15,12 @@ class Launcher : public QThread
 public:
     explicit Launcher(QObject *parent = 0);
     void run();
+    static BOOL CALLBACK FindWindowProc(HWND hwnd, LPARAM lParam);
     void interrupt();
     void ClearRegistryKeys();
     bool TerminateProcessById(int dwProcessId, int uExitCode);
-    MainWindow *mw;
+    QString pathToScreenShots;
+    bool findCommunicationWindow;
 signals:
     void submitLog(QString);
     void submitResult(bool);

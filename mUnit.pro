@@ -30,3 +30,7 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui
 
 RC_FILE = mUnit.rc
+
+win32 {
+    LIBS += -lUser32
+}
