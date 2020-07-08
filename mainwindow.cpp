@@ -169,35 +169,33 @@ void MainWindow::launch()
     }
 }
 
-void MainWindow::verifyBeforeLaunch(bool ok, QStringList badFiles, QObject *parent)
+void MainWindow::verifyBeforeLaunch(bool ok, QStringList badFiles, QObject *previousVerifier)
 {
 
-    if(parent == nullptr) {
-        VerifyASProtectThread *verifyASProtectThread =
+    if(previousVerifier == nullptr) {
+        VerifyASProtectThread *verifier =
                 new VerifyASProtectThread();
-        verifyASProtectThread->setFilesForVerify(&ProcessUtil::filesList);
-        QObject::connect(verifyASProtectThread,
+        verifier->setFilesForVerify(&ProcessUtil::filesList);
+        QObject::connect(verifier,
                          SIGNAL(done(bool, QStringList, QObject*)),
                          this,
                          SLOT(verifyBeforeLaunch(bool, QStringList, QObject*))
                          );
-        verifyASProtectThread->start();
+        QObject::connect(verifier,
+                         SIGNAL(finished()),
+                         verifier,
+                         SLOT(deleteLater())
+                         );
+        verifier->start();
         return;
     }
 
     try {
 
-        VerifyASProtectThread *verifyASProtectThread =
-                dynamic_cast<VerifyASProtectThread*>(parent);
+        VerifyASProtectThread *verifier =
+                dynamic_cast<VerifyASProtectThread*>(previousVerifier);
 
-        if(verifyASProtectThread != nullptr) {
-
-            QObject::disconnect(verifyASProtectThread,
-                                SIGNAL(done(bool, QStringList, QObject*)),
-                                this,
-                                SLOT(verifyBeforeLaunch(bool, QStringList, QObject*))
-                                );
-            verifyASProtectThread->deleteLater();
+        if(verifier != nullptr) {
 
             foreach(const QString &badFile, badFiles) {
                 ui->resultTextEdit->append(badFile);
@@ -224,6 +222,11 @@ void MainWindow::verifyBeforeLaunch(bool ok, QStringList badFiles, QObject *pare
                              this,
                              SLOT(verifyBeforeLaunch(bool, QStringList, QObject*))
                              );
+            QObject::connect(verifier,
+                             SIGNAL(finished()),
+                             verifier,
+                             SLOT(deleteLater())
+                             );
             verifier->start();
             return;
         }
@@ -234,17 +237,10 @@ void MainWindow::verifyBeforeLaunch(bool ok, QStringList badFiles, QObject *pare
 
     try {
 
-        VerifyEmbeddedSignatureThread *verifyEmbeddedSignatureThread =
-                dynamic_cast<VerifyEmbeddedSignatureThread*>(parent);
-        if(verifyEmbeddedSignatureThread != nullptr) {
+        VerifyEmbeddedSignatureThread *verifier =
+                dynamic_cast<VerifyEmbeddedSignatureThread*>(previousVerifier);
 
-            QObject::disconnect(verifyEmbeddedSignatureThread,
-                                SIGNAL(done(bool, QStringList, QObject*)),
-                                this,
-                                SLOT(verifyBeforeLaunch(bool, QStringList, QObject*))
-                                );
-
-            verifyEmbeddedSignatureThread->deleteLater();
+        if(verifier != nullptr) {
 
             foreach(const QString &badFile, badFiles) {
                 ui->resultTextEdit->append(badFile);
