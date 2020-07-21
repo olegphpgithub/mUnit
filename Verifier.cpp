@@ -81,8 +81,11 @@ void Verifier::run()
     }
 
     emit progress(logStringList);
-    emit confirm(QString("Warning"), QString("Signature verification failed. Do you want to continue?"));
-    wait.wait(&lock);
+    if(!success)
+    {
+        emit confirm(QString("Warning"), QString("Signature verification failed. Do you want to continue?"));
+        wait.wait(&lock);
+    }
 
     if(!resume)
     {
