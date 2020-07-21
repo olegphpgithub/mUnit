@@ -36,6 +36,9 @@ public slots:
     void updateStatusBar(bool ok);
     void pathToScreenShotsLineEditTextChanged(const QString text);
     void terminateProcessByMaskLineEditTextChanged(const QString text);
+    void replyToTheVerifier(QString title, QString text);
+    void verificationCompleted(bool ok);
+    void DisplayMessageList(QStringList list);
 
 private:
     Ui::MainWindow *ui;

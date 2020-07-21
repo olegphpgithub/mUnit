@@ -9,8 +9,8 @@ class VerifyASProtectThread : public QThread
     void run();
     bool success;
     QStringList *filesForVerify;
-    bool VerifyASProtect(QString fileForVerify, QString *logString);
 public:
+    static bool VerifyASProtect(QString fileForVerify, QString *logString);
     explicit VerifyASProtectThread(QObject *parent = nullptr);
     ~VerifyASProtectThread();
     void setFilesForVerify(QStringList *pFilesForVerify);

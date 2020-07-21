@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "ProcessUtil.h"
+#include "Verifier.h"
 
 #include <QtCore>
 #include <QtDebug>
@@ -157,7 +158,15 @@ void MainWindow::launch()
             throw new QString(tr("There are not files to launch."));
         }
 
-        verifyBeforeLaunch(false, QStringList(), nullptr);
+        Verifier *verifier = new Verifier();
+        connect(verifier, SIGNAL(progress(QStringList)), this, SLOT(DisplayMessageList(QStringList)));
+        connect(verifier, SIGNAL(confirm(QString, QString)), this, SLOT(replyToTheVerifier(QString, QString)));
+        connect(verifier, SIGNAL(passed(bool)), this, SLOT(verificationCompleted(bool)));
+        connect(verifier, SIGNAL(finished()), verifier, SLOT(deleteLater()));
+
+        verifier->start();
+
+        // verifyBeforeLaunch(false, QStringList(), nullptr);
 
     } catch(QString *exception) {
         
@@ -166,6 +175,46 @@ void MainWindow::launch()
         ui->LaunchPushButton->setEnabled(true);
         setGuiEnabled(true);
         
+    }
+}
+
+void MainWindow::replyToTheVerifier(QString title, QString text)
+{
+    int res = QMessageBox::warning(nullptr,
+                                   title,
+                                   text,
+                                   QMessageBox::Ok | QMessageBox::Cancel,
+                                   QMessageBox::Cancel);
+
+    if(res != QMessageBox::Ok)
+    {
+        Verifier::resume = false;
+    }
+    else
+    {
+        Verifier::resume = true;
+    }
+    Verifier::wait.wakeAll();
+}
+
+void MainWindow::verificationCompleted(bool ok)
+{
+    if(ok)
+    {
+        StartNextPE();
+    }
+    else
+    {
+        setGuiEnabled(true);
+        ui->LaunchPushButton->setEnabled(true);
+        ui->NextLaunchPushButton->setEnabled(false);
+    }
+}
+
+void MainWindow::DisplayMessageList(QStringList list)
+{
+    foreach(const QString &item, list) {
+        ui->resultTextEdit->append(item);
     }
 }
 
@@ -391,7 +440,6 @@ void MainWindow::doNotHaveMuchTime()
 void MainWindow::timeoutExceeded()
 {
     Launcher *launcher = new Launcher();
-    launcher->findCommunicationWindow = ui->findWindowCheckBox->isChecked();
     QObject::connect(launcher, SIGNAL(finished()), this, SLOT(StartNextPE()));
     QObject::connect(launcher, SIGNAL(submitResult(bool)), this, SLOT(updateStatusBar(bool)));
     QObject::connect(launcher, SIGNAL(submitLog(QString)), this, SLOT(log(QString)));
