@@ -201,6 +201,10 @@ void MainWindow::verificationCompleted(bool ok)
 {
     if(ok)
     {
+        ProcessUtil::currentFile = -1;
+        lctot = lcsuc = lcerr = 0;
+        ui->statusBar->showMessage(QString(""), 0);
+        mtimer = nullptr;
         StartNextPE();
     }
     else

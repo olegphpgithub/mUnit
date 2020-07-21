@@ -27,7 +27,6 @@ void Verifier::run()
 {
     resume = true;
     lock.lock();
-    qDebug() << "start run sleep";
 
     bool success = true;
     QStringList logStringList;
@@ -48,8 +47,6 @@ void Verifier::run()
         logStringList.append(QString("All files were protected."));
     }
 
-    QThread::sleep(3);
-
     emit progress(logStringList);
     if(!success)
     {
@@ -59,7 +56,6 @@ void Verifier::run()
 
     if(!resume)
     {
-        qDebug() << "stop 1";
         emit passed(false);
         lock.unlock();
         return;
@@ -81,9 +77,8 @@ void Verifier::run()
     }
 
     if(success) {
-        logStringList.append(QString("All files were protected."));
+        logStringList.append(QString("All files were signed and the signatures were verified."));
     }
-    QThread::sleep(3);
 
     emit progress(logStringList);
     emit confirm(QString("Warning"), QString("Signature verification failed. Do you want to continue?"));
@@ -91,12 +86,10 @@ void Verifier::run()
 
     if(!resume)
     {
-        qDebug() << "stop 2";
         emit passed(false);
         lock.unlock();
         return;
     }
     emit passed(true);
-    QThread::sleep(3);
     lock.unlock();
 }
