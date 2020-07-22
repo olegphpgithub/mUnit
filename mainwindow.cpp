@@ -14,8 +14,7 @@
 #pragma comment(lib, "Wtsapi32.lib")
 
 #include "LaunchProcess.h"
-#include "VerifyASProtectThread.h"
-#include "VerifyEmbeddedSignatureThread.h"
+#include "Verifier.h"
 #include "Launcher.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -163,10 +162,7 @@ void MainWindow::launch()
         connect(verifier, SIGNAL(confirm(QString, QString)), this, SLOT(replyToTheVerifier(QString, QString)));
         connect(verifier, SIGNAL(passed(bool)), this, SLOT(verificationCompleted(bool)));
         connect(verifier, SIGNAL(finished()), verifier, SLOT(deleteLater()));
-
         verifier->start();
-
-        // verifyBeforeLaunch(false, QStringList(), nullptr);
 
     } catch(QString *exception) {
         
@@ -221,112 +217,6 @@ void MainWindow::DisplayMessageList(QStringList list)
         ui->resultTextEdit->append(item);
     }
 }
-
-void MainWindow::verifyBeforeLaunch(bool ok, QStringList badFiles, QObject *previousVerifier)
-{
-
-    if(previousVerifier == nullptr) {
-        VerifyASProtectThread *verifier =
-                new VerifyASProtectThread();
-        verifier->setFilesForVerify(&ProcessUtil::filesList);
-        QObject::connect(verifier,
-                         SIGNAL(done(bool, QStringList, QObject*)),
-                         this,
-                         SLOT(verifyBeforeLaunch(bool, QStringList, QObject*))
-                         );
-        QObject::connect(verifier,
-                         SIGNAL(finished()),
-                         verifier,
-                         SLOT(deleteLater())
-                         );
-        verifier->start();
-        return;
-    }
-
-    try {
-
-        VerifyASProtectThread *verifier =
-                dynamic_cast<VerifyASProtectThread*>(previousVerifier);
-
-        if(verifier != nullptr) {
-
-            foreach(const QString &badFile, badFiles) {
-                ui->resultTextEdit->append(badFile);
-            }
-
-            if(!ok) {
-                int res = QMessageBox::warning(this,
-                                               QString("Warning"),
-                                               QString("ASProtect verification failed. Do you want to continue?"),
-                                               QMessageBox::Ok | QMessageBox::Cancel,
-                                               QMessageBox::Cancel);
-                if(res != QMessageBox::Ok) {
-                    setGuiEnabled(true);
-                    ui->LaunchPushButton->setEnabled(true);
-                    ui->NextLaunchPushButton->setEnabled(false);
-                    return;
-                }
-            }
-            VerifyEmbeddedSignatureThread *verifier =
-                    new VerifyEmbeddedSignatureThread();
-            verifier->setFilesForVerify(&ProcessUtil::filesList);
-            QObject::connect(verifier,
-                             SIGNAL(done(bool, QStringList, QObject*)),
-                             this,
-                             SLOT(verifyBeforeLaunch(bool, QStringList, QObject*))
-                             );
-            QObject::connect(verifier,
-                             SIGNAL(finished()),
-                             verifier,
-                             SLOT(deleteLater())
-                             );
-            verifier->start();
-            return;
-        }
-
-    } catch(const std::bad_cast&) {
-
-    }
-
-    try {
-
-        VerifyEmbeddedSignatureThread *verifier =
-                dynamic_cast<VerifyEmbeddedSignatureThread*>(previousVerifier);
-
-        if(verifier != nullptr) {
-
-            foreach(const QString &badFile, badFiles) {
-                ui->resultTextEdit->append(badFile);
-            }
-
-            if(!ok) {
-                int res = QMessageBox::warning(this,
-                                               QString("Warning"),
-                                               QString("Signature verification failed. Do you want to continue?"),
-                                               QMessageBox::Ok | QMessageBox::Cancel,
-                                               QMessageBox::Cancel);
-                if(res != QMessageBox::Ok) {
-                    setGuiEnabled(true);
-                    ui->LaunchPushButton->setEnabled(true);
-                    ui->NextLaunchPushButton->setEnabled(false);
-                    return;
-                }
-            }
-
-            ProcessUtil::currentFile = -1;
-            lctot = lcsuc = lcerr = 0;
-            ui->statusBar->showMessage(QString(""), 0);
-            mtimer = nullptr;
-            StartNextPE();
-
-        }
-
-    } catch(const std::bad_cast&) {
-
-    }
-
-}
-
 
 void MainWindow::nextLaunch()
 {

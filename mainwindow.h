@@ -25,7 +25,6 @@ public:
 public slots:
     void setGuiEnabled(bool enable);
     void launch();
-    void verifyBeforeLaunch(bool ok, QStringList badFiles, QObject *verifier);
     void nextLaunch();
     void log(QString);
     void doNotHaveMuchTime();

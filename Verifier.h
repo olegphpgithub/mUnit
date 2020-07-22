@@ -13,6 +13,8 @@ class Verifier : public QThread
 public:
     explicit Verifier(QObject *parent = nullptr);
     void setParentWidget(QWidget *parent);
+    bool VerifyASProtect(QString fileForVerify, QString *logString);
+    bool VerifyEmbeddedSignature(QString fileForVerify, QString *logString);
 
     static QWaitCondition wait;
     static QMutex lock;
