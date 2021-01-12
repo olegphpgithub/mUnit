@@ -356,5 +356,3 @@ void Launcher::ClearRegistryKeys()
 
     }
 }
-
-

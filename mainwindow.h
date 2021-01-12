@@ -38,6 +38,7 @@ public slots:
     void replyToTheVerifier(QString title, QString text);
     void verificationCompleted(bool ok);
     void DisplayMessageList(QStringList list);
+    void extendUserActivity();
 
 private:
     Ui::MainWindow *ui;

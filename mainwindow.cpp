@@ -9,6 +9,7 @@
 
 #include <Windows.h>
 #include <WtsApi32.h>
+#include <WinUser.h>
 
 
 #pragma comment(lib, "Wtsapi32.lib")
@@ -279,6 +280,8 @@ void MainWindow::StartNextPE()
 
     }
 
+    extendUserActivity();
+
     ZeroMemory(lpctsArgs, dwcArgs);
     commandLineArgumentsString.toWCharArray(lpctsArgs);
 
@@ -353,4 +356,31 @@ void MainWindow::updateStatusBar(bool ok)
     statusBarMsg = statusBarMsg.arg(lcsuc);
     statusBarMsg = statusBarMsg.arg(lcerr);
     ui->statusBar->showMessage(statusBarMsg, 0);
+}
+
+
+void MainWindow::extendUserActivity()
+{
+    INPUT inputs[4];
+    ZeroMemory(inputs, sizeof(inputs));
+
+    inputs[0].type = INPUT_KEYBOARD;
+    inputs[0].ki.wVk = VK_SCROLL;
+
+    inputs[1].type = INPUT_KEYBOARD;
+    inputs[1].ki.wVk = VK_SCROLL;
+    inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
+
+    inputs[2].type = INPUT_KEYBOARD;
+    inputs[2].ki.wVk = VK_SCROLL;
+
+    inputs[3].type = INPUT_KEYBOARD;
+    inputs[3].ki.wVk = VK_SCROLL;
+    inputs[3].ki.dwFlags = KEYEVENTF_KEYUP;
+
+    UINT uSent = SendInput(ARRAYSIZE(inputs), inputs, sizeof(INPUT));
+    if (uSent != ARRAYSIZE(inputs))
+    {
+        // SendInput failed
+    }
 }

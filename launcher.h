@@ -18,7 +18,6 @@ public:
     static BOOL CALLBACK FindWindowProc(HWND hwnd, LPARAM lParam);
     void interrupt();
     void ClearRegistryKeys();
-    bool TerminateProcessById(int dwProcessId, int uExitCode);
     QString pathToScreenShots;
     bool findCommunicationWindow;
 signals:
