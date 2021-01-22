@@ -319,25 +319,31 @@ bool Verifier::VerifyEmbeddedSignature(QString fileForVerify, QString *logString
         subject.
         */
 
+        /*
+
+        // File must have secondary signature
+
         if(signatureSettings.cSecondarySigs > 0
                 || !canUseSignatureSettings
         )
         {
-
             success = true;
-
             message = QString(
                 "The file was signed "
                 "and the signature was verified."
             );
-
         } else {
-
             success = false;
-
             message = QString("The file does not have a secondary signature.");
-
         }
+
+        */
+
+        success = true;
+        message = QString(
+            "The file was signed "
+            "and the signature was verified."
+        );
 
         break;
 
