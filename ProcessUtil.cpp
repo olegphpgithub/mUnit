@@ -17,7 +17,6 @@ ProcessUtil::~ProcessUtil()
 
 QMap<int, QString> ProcessUtil::getProcessesList()
 {
-
     QMap<int, QString> processesMap;
 
     WTS_PROCESS_INFO *pWPIs = NULL;
@@ -39,14 +38,10 @@ QMap<int, QString> ProcessUtil::getProcessesList()
             }
 
             processesMap.insert(pWPIs[i].ProcessId, processName);
-
-
-
         }
     }
 
     return processesMap;
-
 }
 
 

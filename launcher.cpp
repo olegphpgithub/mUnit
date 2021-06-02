@@ -110,34 +110,54 @@ void Launcher::interrupt()
 
     int attempt = 3;
     do {
-
         processesAtWork = ProcessUtil::getProcessesList();
         report = QString("");
 
-        if(processesAtWork.contains(ProcessUtil::dwCurrentProcessId)) {
-            report = QString("%1 - %2");
-            report = report.arg(processesAtWork.take(ProcessUtil::dwCurrentProcessId));
-            bool ok = ProcessUtil::TerminateProcessById(ProcessUtil::dwCurrentProcessId, 1);
-            if(ok) {
-                report = report.arg("Terminated successfully.");
-                emit submitLog(report);
-                break;
-            } else {
-                report = report.arg("Failure to terminate process. Try in 5 seconds...");
+        QFileInfo fileInfo(ProcessUtil::filesList.at(ProcessUtil::currentFile));
+        QString fileName(fileInfo.fileName());
+
+        QList<int> processIds = processesAtWork.keys(fileName);
+
+        if (!processIds.isEmpty())
+        {
+            int succeeded = 0;
+            foreach(const int &processId, processIds)
+            {
+                report = QString("%1 - %2");
+                report = report.arg(processesAtWork.take(processId));
+                bool ok = ProcessUtil::TerminateProcessById(processId, 1);
+                if (ok)
+                {
+                    succeeded++;
+                    report = report.arg("Terminated successfully.");
+                    emit submitLog(report);
+                }
+                else
+                {
+                    report = report.arg("Failure to terminate process. Try in 5 seconds...");
+                }
             }
-        } else {
+            if (processIds.length() == succeeded)
+            {
+                break;
+            }
+        }
+        else
+        {
             report = QString("%1 was not found. Try in 5 seconds...");
-            QFileInfo fileInfo(ProcessUtil::filesList.at(ProcessUtil::currentFile));
-            QString fileName(fileInfo.fileName());
             report = report.arg(fileName);
         }
 
         emit submitLog(report);
-        if(attempt > 0) {
-            QThread::sleep(5);
-        }
-        if(attempt == 1) {
+
+        if (attempt == 1)
+        {
             result = false;
+            break;
+        }
+        if (attempt > 0)
+        {
+            QThread::sleep(5);
         }
         attempt--;
 
