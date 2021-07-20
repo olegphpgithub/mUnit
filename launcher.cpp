@@ -14,40 +14,11 @@
 
 Launcher::Launcher(QObject *parent) : QThread(parent)
 {
-    findCommunicationWindow = false;
 }
 
 void Launcher::run()
 {
     interrupt();
-}
-
-BOOL CALLBACK Launcher::FindWindowProc(HWND hwnd, LPARAM lParam)
-{
-    DWORD* lpdwDesiredProcessID = reinterpret_cast<DWORD*>(lParam);
-    DWORD processId;
-    GetWindowThreadProcessId(hwnd, &processId);
-    if (processId == *lpdwDesiredProcessID)
-    {
-        TCHAR className[100] = { 0 };
-        if (GetClassName(hwnd, className, 100))
-        {
-            if (_tcscmp(className, TEXT("#32770")) == 0)
-            {
-                WCHAR cname[1024] = { 0 };
-                HWND hwndCmd = GetDlgItem(hwnd, 1045);
-                if (hwndCmd)
-                {
-                    GetWindowText(hwndCmd, cname, 1024);
-                    if (_tcscmp(cname, TEXT("fus 3 ")) == 0)
-                    {
-                        return FALSE;
-                    }
-                }
-            }
-        }
-    }
-    return TRUE;
 }
 
 void Launcher::interrupt()
@@ -86,23 +57,8 @@ void Launcher::interrupt()
     } catch(QString message) {
         emit submitLog(message);
     }
-    
+
     // ----- ScreenShot -----
-
-
-    // +++++ Find communication window +++++
-
-    if (findCommunicationWindow)
-    {
-        BOOL bWinFound = ! EnumWindows(FindWindowProc, reinterpret_cast<LPARAM>(&ProcessUtil::dwCurrentProcessId));
-        if( ! bWinFound)
-        {
-            emit submitLog("Could not found communication window");
-            result = false;
-        }
-    }
-
-    // ----- Find communication window -----
 
     // +++++ terminate processes +++++
 

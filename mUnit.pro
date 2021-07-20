@@ -13,6 +13,7 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
+    SpyWindow.cpp \
     Verifier.cpp \
         mainwindow.cpp \
     LaunchProcess.cpp \
@@ -22,6 +23,7 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h \
     LaunchProcess.h \
     Launcher.h \
+    SpyWindow.h \
     Verifier.h \
     ProcessUtil.h
 

@@ -7,6 +7,7 @@
 #include <Windows.h>
 
 class LaunchProcess;
+class SpyWindow;
 class VerifyEmbeddedSignatureThread;
 
 namespace Ui {
@@ -45,6 +46,8 @@ private:
     
     QStringList getFilesListToLaunch();
     LaunchProcess *mtimer;
+    SpyWindow *m_lpSpyWindow;
+
     wchar_t *lpctsArgs;
     DWORD dwcArgs;
     int lctot, lcsuc, lcerr;

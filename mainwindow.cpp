@@ -15,6 +15,7 @@
 #pragma comment(lib, "Wtsapi32.lib")
 
 #include "LaunchProcess.h"
+#include "SpyWindow.h"
 #include "Verifier.h"
 #include "Launcher.h"
 
@@ -223,6 +224,7 @@ void MainWindow::nextLaunch()
 {
     ui->NextLaunchPushButton->setEnabled(false);
     mtimer->terminate();
+    m_lpSpyWindow->terminate();
 }
 
 void MainWindow::preLaunchEvent()
@@ -244,6 +246,7 @@ void MainWindow::StartNextPE()
         QObject::disconnect(mtimer, SIGNAL(comingToAnEnd()), this, SLOT(doNotHaveMuchTime()));
         QObject::disconnect(mtimer, SIGNAL(finished()), this, SLOT(timeoutExceeded()));
         mtimer->deleteLater();
+        m_lpSpyWindow->deleteLater();
     }
 
     if (++ProcessUtil::currentFile >= ProcessUtil::filesList.count()) {
@@ -305,8 +308,11 @@ void MainWindow::StartNextPE()
     QObject::connect(mtimer, SIGNAL(finished()), this, SLOT(timeoutExceeded()));
     mtimer->start();
 
-    ui->NextLaunchPushButton->setEnabled(true);
+    m_lpSpyWindow = new SpyWindow(ProcessUtil::dwCurrentProcessId, QString::fromWCharArray(L"#32770"), QString::fromWCharArray(L"Accept && Install"));
+    QObject::connect(m_lpSpyWindow, SIGNAL(finished()), mtimer, SLOT(terminate()));
+    m_lpSpyWindow->start();
 
+    ui->NextLaunchPushButton->setEnabled(true);
 }
 
 QStringList MainWindow::getFilesListToLaunch()
