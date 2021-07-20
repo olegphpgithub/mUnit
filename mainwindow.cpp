@@ -203,6 +203,7 @@ void MainWindow::verificationCompleted(bool ok)
         lctot = lcsuc = lcerr = 0;
         ui->statusBar->showMessage(QString(""), 0);
         mtimer = nullptr;
+        m_lpSpyWindow = nullptr;
         StartNextPE();
     }
     else
@@ -223,7 +224,6 @@ void MainWindow::DisplayMessageList(QStringList list)
 void MainWindow::nextLaunch()
 {
     ui->NextLaunchPushButton->setEnabled(false);
-    mtimer->terminate();
     m_lpSpyWindow->terminate();
 }
 
@@ -239,14 +239,21 @@ void MainWindow::preLaunchEvent()
 
 void MainWindow::StartNextPE()
 {
-
     preLaunchEvent();
 
-    if(mtimer != NULL) {
+    if (mtimer != nullptr)
+    {
         QObject::disconnect(mtimer, SIGNAL(comingToAnEnd()), this, SLOT(doNotHaveMuchTime()));
         QObject::disconnect(mtimer, SIGNAL(finished()), this, SLOT(timeoutExceeded()));
         mtimer->deleteLater();
+        mtimer = nullptr;
+    }
+
+    if (m_lpSpyWindow != nullptr)
+    {
+        m_lpSpyWindow->terminate();
         m_lpSpyWindow->deleteLater();
+        m_lpSpyWindow = nullptr;
     }
 
     if (++ProcessUtil::currentFile >= ProcessUtil::filesList.count()) {
