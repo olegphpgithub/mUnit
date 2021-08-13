@@ -21,12 +21,17 @@ bool Verifier::resume = true;
 
 Verifier::Verifier(QObject *parent) : QThread(parent)
 {
-
+    m_VerificationOptions = 0xFFFFFFFF;
 }
 
 void Verifier::setParentWidget(QWidget *parent)
 {
     parentWidget = parent;
+}
+
+void Verifier::setOptions(unsigned int options)
+{
+    m_VerificationOptions = options;
 }
 
 void Verifier::run()
@@ -196,7 +201,6 @@ bool Verifier::VerifyASProtect(QString fileForVerify, QString *logString)
 
 bool Verifier::VerifyEmbeddedSignature(QString fileForVerify, QString *logString)
 {
-
     bool success = false;
     LONG lStatus;
     DWORD dwLastError;
@@ -319,30 +323,23 @@ bool Verifier::VerifyEmbeddedSignature(QString fileForVerify, QString *logString
         subject.
         */
 
-        // File must have secondary signature
-
-        if (signatureSettings.cSecondarySigs > 0
-                || !canUseSignatureSettings
-        )
-        {
-            success = true;
-            message = QString(
-                "The file was signed "
-                "and the signature was verified."
-            );
-        } else {
-            success = false;
-            message = QString("The file does not have a secondary signature.");
-        }
-
-        /*
         success = true;
         message = QString(
             "The file was signed "
             "and the signature was verified."
         );
-        */
 
+        break;
+
+    case CERT_E_EXPIRED:
+
+        if (m_VerificationOptions & CHECK_CERTIFICATE_EXPIRATION)
+            success = false;
+        else
+            success = true;
+        message = QString(
+                    "The validity periods of the certification chain "
+                    "do not nest correctly.");
         break;
 
     case TRUST_E_NOSIGNATURE:
@@ -426,6 +423,18 @@ bool Verifier::VerifyEmbeddedSignature(QString fileForVerify, QString *logString
         message = QString::fromWCharArray(pwszErrorMessage);
 
         break;
+    }
+
+    if (success)
+    {
+        // File must have secondary signature
+        if (signatureSettings.cSecondarySigs < 1
+                && canUseSignatureSettings)
+        {
+            if (m_VerificationOptions & CHECK_SECONDARY_SIGNATURE_PRESENCE)
+                success = false;
+            message = QString("The file does not have a secondary signature.");
+        }
     }
 
     logString->append(" - ");

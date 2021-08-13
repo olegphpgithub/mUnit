@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>636</width>
-    <height>518</height>
+    <width>640</width>
+    <height>640</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -116,6 +116,26 @@
          <widget class="QLineEdit" name="terminateProcessByMaskLineEdit"/>
         </item>
        </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="CertExpireCheckBox">
+        <property name="text">
+         <string>Check certificate expiration date</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="CertCountCheckBox">
+        <property name="text">
+         <string>Check the presence of a secondary signature</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="LaunchPushButton">

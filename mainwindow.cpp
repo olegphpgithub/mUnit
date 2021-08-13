@@ -160,6 +160,10 @@ void MainWindow::launch()
         }
 
         Verifier *verifier = new Verifier();
+        unsigned int nVerificationOptions = 0;
+        nVerificationOptions = ui->CertExpireCheckBox->isChecked() ? Verifier::CHECK_CERTIFICATE_EXPIRATION : 0;
+        nVerificationOptions |= ui->CertCountCheckBox->isChecked() ? Verifier::CHECK_SECONDARY_SIGNATURE_PRESENCE : 0;
+        verifier->setOptions(nVerificationOptions);
         connect(verifier, SIGNAL(progress(QStringList)), this, SLOT(DisplayMessageList(QStringList)));
         connect(verifier, SIGNAL(confirm(QString, QString)), this, SLOT(replyToTheVerifier(QString, QString)));
         connect(verifier, SIGNAL(passed(bool)), this, SLOT(verificationCompleted(bool)));
